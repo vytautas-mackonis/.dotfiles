@@ -30,5 +30,6 @@ if [[ "$OS_FAMILY" == macos ]] && ! command -v brew >/dev/null 2>&1; then
 fi
 
 "$DOTFILES_DIR/scripts/fonts/install.sh"
+"$DOTFILES_DIR/scripts/plasma/install.sh"
 "$DOTFILES_DIR/scripts/tmux/install.sh"
 "$DOTFILES_DIR/scripts/vim/install.sh"
