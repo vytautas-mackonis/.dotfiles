@@ -8,9 +8,10 @@ The installer currently:
 
 1. Detects the operating system and distribution.
 2. Installs the bundled fonts for the current OS.
-3. Installs tmux using Homebrew, apt, or pacman.
+3. Installs tmux using Homebrew, apt, or pacman, links the preserved tmux configuration, and installs its terminal definitions.
 4. Installs the latest Vim version available from the platform package manager.
 5. Configures Vim with the plugin set from the previous dotfiles repository using vim-plug.
+6. Adds a general shell include to Bash, Zsh, and Fish configuration; it currently provides the shared PATH, prompt, aliases, colors, and macOS Terminal settings from the previous Bash configuration.
 
 Run from this directory:
 
@@ -18,4 +19,4 @@ Run from this directory:
 ./install.sh
 ```
 
-The scripts make user-level font directories. On macOS, Homebrew is bootstrapped noninteractively if it is missing; on Linux, `sudo` is authenticated once for package installation. WSL is treated as Ubuntu for package installation; fonts are installed inside WSL and are not automatically installed on the Windows host. Shell configuration and other dotfiles will be added incrementally.
+The scripts make user-level font directories. The general shell include is appended at the end of Bash, Zsh, and Fish startup files so its settings override earlier ones. On macOS, Homebrew is bootstrapped noninteractively if it is missing; on Linux, `sudo` is authenticated once for package installation. WSL is treated as Ubuntu for package installation; fonts are installed inside WSL and are not automatically installed on the Windows host. Shell configuration and other dotfiles will be added incrementally.

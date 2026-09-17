@@ -12,6 +12,9 @@ if [[ "$OS_FAMILY" == linux || "$OS_FAMILY" == macos ]]; then
   sudo -v
 fi
 
+export PATH="$DOTFILES_DIR/bin:$PATH"
+"$DOTFILES_DIR/scripts/shell/install.sh"
+
 if [[ "$OS_FAMILY" == macos ]] && ! command -v brew >/dev/null 2>&1; then
   printf 'Installing Homebrew noninteractively...\n'
   NONINTERACTIVE=1 /bin/bash -c \

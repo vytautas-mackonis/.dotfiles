@@ -26,4 +26,21 @@ case "$OS_FAMILY:$OS_DISTRO" in
     ;;
 esac
 
-printf 'tmux installation complete.\n'
+TMUX_CONF="$HOME/.tmux.conf"
+TMUX_SOURCE="$DOTFILES_DIR/tmux/tmux.conf"
+if [[ -e "$TMUX_CONF" || -L "$TMUX_CONF" ]]; then
+  if [[ "$(readlink -f "$TMUX_CONF" 2>/dev/null || true)" != "$TMUX_SOURCE" ]]; then
+    mv "$TMUX_CONF" "$TMUX_CONF.backup"
+  fi
+fi
+if [[ ! -e "$TMUX_CONF" && ! -L "$TMUX_CONF" ]]; then
+  ln -s "$TMUX_SOURCE" "$TMUX_CONF"
+fi
+
+# Install the terminal definitions used by the preserved tmux configuration.
+if command -v tic >/dev/null 2>&1; then
+  tic -x "$DOTFILES_DIR/resources/tmux-256color-italic.terminfo"
+  tic "$DOTFILES_DIR/resources/xterm-256color-italic.terminfo"
+fi
+
+printf 'tmux and its configuration are installed.\n'
