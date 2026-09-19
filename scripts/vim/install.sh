@@ -43,13 +43,20 @@ if [[ -e "$VIMRC" || -L "$VIMRC" ]]; then
 fi
 ln -sfn "$VIMRC_SOURCE" "$VIMRC"
 
-if [[ -n "${WSL_INTEROP:-}" ]] && command -v script >/dev/null 2>&1; then
-  script -qec "vim -Nu '$VIMRC' -n '+PlugInstall --sync' '+PlugUpdate --sync' '+PlugClean!' +qall" /dev/null
-else
-  vim -Nu "$VIMRC" -n \
-    +'PlugInstall --sync' \
-    +'PlugUpdate --sync' \
-    +'PlugClean!' \
-    +qall
+if [[ -f "$HOME/.deno/env" ]]; then
+  # shellcheck disable=SC1091
+  source "$HOME/.deno/env"
 fi
+
+# The first pass may return non-zero because vimrc references plugins before they are installed.
+# Run it anyway so PlugInstall can bootstrap the plugin tree; the second pass is strict.
+vim -Nu "$VIMRC" -n -es \
+  +'PlugInstall --sync' \
+  +qall || true
+
+vim -Nu "$VIMRC" -n \
+  +'PlugInstall --sync' \
+  +'PlugUpdate --sync' \
+  +'PlugClean!' \
+  +qall </dev/null
 printf 'Vim, its configuration, and its plugins are synced.\n'
