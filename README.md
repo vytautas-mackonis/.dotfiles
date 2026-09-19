@@ -21,3 +21,37 @@ Run from this directory:
 ```
 
 The scripts make user-level font directories. The general shell include is appended at the end of Bash, Zsh, and Fish startup files so its settings override earlier ones. On macOS, Homebrew is bootstrapped noninteractively if it is missing; on Linux, `sudo` is authenticated once for package installation. WSL is treated as Ubuntu for package installation; fonts are installed inside WSL and are not automatically installed on the Windows host. Shell configuration and other dotfiles will be added incrementally.
+
+## Vagrant test VMs
+
+The included `Vagrantfile` boots clean Linux VMs, copies this repository to `/dotfiles`, runs `./install.sh` as the default VM user, and leaves the VM running for inspection.
+
+Prerequisites on the host:
+
+- Vagrant
+- A Vagrant provider supported by the selected box, such as VirtualBox, VMware, Parallels, or libvirt
+
+Start a test VM:
+
+```bash
+vagrant up ubuntu
+# or
+vagrant up arch
+```
+
+After provisioning completes, inspect the VM with:
+
+```bash
+vagrant ssh ubuntu
+# or
+vagrant ssh arch
+```
+
+Reset a VM back to a clean state with:
+
+```bash
+vagrant destroy -f ubuntu
+vagrant up ubuntu
+```
+
+Ubuntu and Arch native Linux are covered by these Vagrant targets. WSL and macOS testing are not covered by Vagrant here.

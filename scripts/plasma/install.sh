@@ -2,9 +2,8 @@
 set -euo pipefail
 
 SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
-DOTFILES_DIR=$(cd -- "$SCRIPT_DIR/../.." && pwd)
 # shellcheck disable=SC1091
-source "$DOTFILES_DIR/scripts/os-detect.sh"
+source "$SCRIPT_DIR/../common.sh"
 
 if [[ "$OS_FAMILY" != linux || "$OS_ENV" == wsl ]]; then
   printf 'Skipping Plasma settings on %s (%s).\n' "$OS_NAME" "$OS_ENV"

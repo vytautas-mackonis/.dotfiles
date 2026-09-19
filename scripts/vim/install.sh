@@ -2,9 +2,8 @@
 set -euo pipefail
 
 SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
-DOTFILES_DIR=$(cd -- "$SCRIPT_DIR/../.." && pwd)
 # shellcheck disable=SC1091
-source "$DOTFILES_DIR/scripts/os-detect.sh"
+source "$SCRIPT_DIR/../common.sh"
 
 case "$OS_FAMILY:$OS_DISTRO" in
   macos:*)
@@ -15,10 +14,10 @@ case "$OS_FAMILY:$OS_DISTRO" in
     brew install vim
     ;;
   linux:ubuntu)
-    DEBIAN_FRONTEND=noninteractive sudo -n apt-get install -y vim
+    DEBIAN_FRONTEND=noninteractive sudo -n apt-get install -y vim make
     ;;
   linux:arch)
-    sudo -n pacman -S --needed --noconfirm vim
+    sudo -n pacman -S --needed --noconfirm vim make
     ;;
   *)
     printf 'Unsupported operating system/distribution: %s (%s)\n' "$OS_NAME" "$OS_DISTRO" >&2

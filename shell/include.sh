@@ -1,7 +1,16 @@
-# General Bash/Zsh include for ~/.dotfiles.
+# General Bash/Zsh include for dotfiles.
 # Settings here are sourced last so they override earlier shell settings.
 
-export PATH="$HOME/.dotfiles/bin:/usr/local/bin:$HOME/bin:$HOME/.local/bin:$PATH"
+if [ -n "${BASH_SOURCE[0]:-}" ]; then
+    DOTFILES_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
+elif [ -n "${ZSH_VERSION:-}" ]; then
+    DOTFILES_DIR=$(cd -- "$(dirname -- "${(%):-%x}")/.." && pwd)
+else
+    DOTFILES_DIR="$HOME/.dotfiles"
+fi
+
+export DOTFILES_DIR
+export PATH="$DOTFILES_DIR/bin:/usr/local/bin:$HOME/bin:$HOME/.local/bin:$PATH"
 
 export MYPS='$(echo -n "${PWD/#$HOME/~}" | awk -F "/" '\''{
 if (length($0) > 20) { if (NF>4) print $1 "/" $2 "/.../" $(NF-1) "/" $NF;

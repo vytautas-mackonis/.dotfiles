@@ -2,9 +2,10 @@
 set -euo pipefail
 
 SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
-DOTFILES_DIR=$(cd -- "$SCRIPT_DIR/../.." && pwd)
+# shellcheck disable=SC1091
+source "$SCRIPT_DIR/../common.sh"
 
-MARKER="# Added by ~/.dotfiles"
+MARKER="# Added by dotfiles"
 
 add_bourne_path() {
   local file=$1
