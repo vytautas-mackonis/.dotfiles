@@ -4,7 +4,7 @@ syntax on
 set exrc
 set number
 set relativenumber
-set noerrorbells
+set visualbell
 set backspace=indent,eol,start
 
 set directory=~/.vim/swapfiles//
@@ -40,18 +40,27 @@ autocmd Filetype html inoremap <buffer> <expr> <CR> HtmlExpander()
 
 Plug 'OmniSharp/omnisharp-vim'
 Plug 'tpope/vim-dispatch'
-if has('nvim')
-  Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
-else
-  Plug 'Shougo/deoplete.nvim'
-  Plug 'roxma/nvim-yarp'
-  Plug 'roxma/vim-hug-neovim-rpc'
-endif
-let g:deoplete#enable_at_startup = 1
-Plug 'deoplete-plugins/deoplete-jedi'
-" <TAB> completion
-inoremap <expr><TAB>  pumvisible() ? "\<C-n>" : "\<TAB>"
-inoremap <expr><s-TAB>  pumvisible() ? "\<C-p>" : "\<s-TAB>"
+
+" --- ddc.vim core dependencies ---
+Plug 'vim-denops/denops.vim'
+Plug 'Shougo/ddc.vim'
+
+" --- UI: popup completion menu ---
+Plug 'Shougo/pum.vim'
+Plug 'Shougo/ddc-ui-pum'
+
+" --- Sources ---
+Plug 'Shougo/ddc-source-around'       " words from surrounding buffer
+Plug 'shun/ddc-source-vim-lsp'        " LSP completions via vim-lsp
+
+" --- Filters ---
+Plug 'Shougo/ddc-filter-matcher_head' " filter by typed prefix
+Plug 'Shougo/ddc-filter-sorter_rank'  " rank-based sorting
+
+" --- LSP client for Vim ---
+Plug 'prabirshrestha/vim-lsp'
+Plug 'mattn/vim-lsp-settings'         " auto-installs language servers
+
 
 Plug 'jiangmiao/auto-pairs'
 let g:AutoPairsMapSpace = 0
@@ -72,25 +81,19 @@ Plug 'mxw/vim-jsx'
 let g:jsx_ext_required = 0
 Plug 'Shougo/vimproc.vim', { 'do': 'make' }
 Plug 'Quramy/tsuquyomi'
-Plug 'ianks/vim-tsx'
-Plug 'derekwyatt/vim-scala'
 let g:typescript_compiler_binary = 'tsc'
 let g:typescript_compiler_options = ''
 
 let g:tsuquyomi_disable_quickfix = 1
 
+let g:lsp_diagnostics_enabled = 0
 let g:ale_completion_enabled = 0
-let g:ale_linters = {
-\       'javascript': ['eslint', 'flow', 'flow-language-server'],
-\       'python': ['mypy'],
-\       'cs': ['OmniSharp']
-\}
 let g:ale_fixers = {
-\   'javascript': ['prettier'],
-\   'typescript': ['prettier'],
-\   'css': ['prettier'],
+\    'python': ['ruff', 'ruff_format'],
+\    'typescript': ['biome'],
+\    'typescriptreact': ['biome'],
 \}
-Plug 'w0rp/ale'
+Plug 'dense-analysis/ale'
 
 Plug 'Vimjas/vim-python-pep8-indent'
 let g:pymode_indent = 0
@@ -117,6 +120,61 @@ autocmd FileType c,cpp,java,scala,js,ts,jsx,tsx,cts,cjs,mts,mjs,py,html,xml,json
 set completeopt=menuone,preview,noselect
 let $NVIM_PYTHON_LOG_FILE="/tmp/nvim_log"
 let $NVIM_PYTHON_LOG_LEVEL="DEBUG"
+
+" ============================================================
+" ddc.vim configuration
+" ============================================================
+
+" UI: use pum.vim for the popup menu
+call ddc#custom#patch_global('ui', 'pum')
+
+" Global sources (all filetypes)
+call ddc#custom#patch_global('sources', ['vim-lsp', 'around'])
+
+" Source options
+call ddc#custom#patch_global('sourceOptions', #{
+  \   _: #{
+  \     matchers: ['matcher_head'],
+  \     sorters: ['sorter_rank'],
+  \   },
+  \   vim-lsp: #{
+  \     mark: 'LSP',
+  \     isVolatile: v:true,
+  \     forceCompletionPattern: '\.\w*|:\w*|->\w*',
+  \   },
+  \   around: #{
+  \     mark: '[buf]',
+  \   },
+  \ })
+
+" Enable ddc
+call ddc#enable()
+
+
+" ============================================================
+" Completion keymaps (insert mode)
+" ============================================================
+
+" Tab / Shift-Tab to navigate the popup
+inoremap <expr> <Tab>
+  \ pum#visible() ? '<Cmd>call pum#map#insert_relative(+1)<CR>' :
+  \ '<Tab>'
+inoremap <expr> <S-Tab>
+  \ pum#visible() ? '<Cmd>call pum#map#insert_relative(-1)<CR>' :
+  \ '<S-Tab>'
+
+" Confirm selection with Enter or C-y, cancel with C-e
+inoremap <expr> <CR>
+  \ pum#visible() ? '<Cmd>call pum#map#confirm()<CR>' : '<CR>'
+inoremap <C-y>  <Cmd>call pum#map#confirm()<CR>
+inoremap <C-e>  <Cmd>call pum#map#cancel()<CR>
+
+" Useful LSP keymaps
+nmap <silent> gd <Plug>(lsp-definition)
+nmap <silent> gr <Plug>(lsp-references)
+nmap <silent> K  <Plug>(lsp-hover)
+nmap <silent> [g <Plug>(lsp-previous-diagnostic)
+nmap <silent> ]g <Plug>(lsp-next-diagnostic)
 
 augroup omnisharp_commands
   autocmd!
