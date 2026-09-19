@@ -14,10 +14,10 @@ case "$OS_FAMILY:$OS_DISTRO" in
     brew install vim
     ;;
   linux:ubuntu)
-    DEBIAN_FRONTEND=noninteractive sudo -n apt-get install -y vim make
+    DEBIAN_FRONTEND=noninteractive sudo -n apt-get install -y vim build-essential
     ;;
   linux:arch)
-    sudo -n pacman -S --needed --noconfirm vim make
+    sudo -n pacman -S --needed --noconfirm vim gcc make
     ;;
   *)
     printf 'Unsupported operating system/distribution: %s (%s)\n' "$OS_NAME" "$OS_DISTRO" >&2
