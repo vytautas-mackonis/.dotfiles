@@ -43,9 +43,13 @@ if [[ -e "$VIMRC" || -L "$VIMRC" ]]; then
 fi
 ln -sfn "$VIMRC_SOURCE" "$VIMRC"
 
-vim -Nu "$VIMRC" -n \
-  +'PlugInstall --sync' \
-  +'PlugUpdate --sync' \
-  +'PlugClean!' \
-  +qall
+if [[ -n "${WSL_INTEROP:-}" ]] && command -v script >/dev/null 2>&1; then
+  script -qec "vim -Nu '$VIMRC' -n '+PlugInstall --sync' '+PlugUpdate --sync' '+PlugClean!' +qall" /dev/null
+else
+  vim -Nu "$VIMRC" -n \
+    +'PlugInstall --sync' \
+    +'PlugUpdate --sync' \
+    +'PlugClean!' \
+    +qall
+fi
 printf 'Vim, its configuration, and its plugins are synced.\n'
