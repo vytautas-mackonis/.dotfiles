@@ -7,12 +7,16 @@ A deliberately small, incremental dotfiles setup for macOS, Ubuntu (including Ub
 The installer currently:
 
 1. Detects the operating system and distribution.
-2. Installs the bundled fonts for the current OS.
-3. Configures KDE Plasma to enable NumLock at session startup when running on Linux with Plasma tools available.
-4. Installs tmux using Homebrew, apt, or pacman, links the preserved tmux configuration, and installs its terminal definitions.
-5. Installs the latest Vim version available from the platform package manager.
-6. Configures Vim with the plugin set from the previous dotfiles repository using vim-plug.
-7. Adds a general shell include to Bash, Zsh, and Fish configuration; it currently provides the shared PATH, prompt, aliases, colors, and macOS Terminal settings from the previous Bash configuration.
+2. Adds a general shell include to Bash, Zsh, and Fish configuration; it provides the shared PATH, prompt, aliases, colors, developer tool initialization, and macOS Terminal settings from the previous Bash configuration.
+3. Installs Homebrew on macOS when it is missing.
+4. Installs the latest Python available through uv and exposes it as `python` and `python3` from `~/.local/bin`.
+5. Installs the latest Node.js through fnm and initializes fnm from the shell includes.
+6. Installs Bun, Deno, fzf, and Podman.
+7. Installs the bundled fonts for the current OS.
+8. Configures KDE Plasma to enable NumLock at session startup when running on Linux with Plasma tools available.
+9. Installs tmux using Homebrew, apt, or pacman, links the preserved tmux configuration, and installs its terminal definitions.
+10. Installs the latest Vim version available from the platform package manager.
+11. Configures Vim with the plugin set from the previous dotfiles repository using vim-plug.
 
 Run from this directory:
 
@@ -20,7 +24,7 @@ Run from this directory:
 ./install.sh
 ```
 
-The scripts make user-level font directories. The general shell include is appended at the end of Bash, Zsh, and Fish startup files so its settings override earlier ones. On macOS, Homebrew is bootstrapped noninteractively if it is missing; on Linux, `sudo` is authenticated once for package installation. WSL is treated as Ubuntu for package installation; fonts are installed inside WSL and are not automatically installed on the Windows host. Shell configuration and other dotfiles will be added incrementally.
+The scripts make user-level font directories. The general shell include is appended at the end of Bash, Zsh, and Fish startup files so its settings override earlier ones. On macOS, Homebrew is bootstrapped noninteractively if it is missing; on Linux, `sudo` is authenticated once for package installation. Python and Node.js are installed as user-level toolchain versions rather than replacing the operating system Python or distro Node packages. Each installable tool has its own `scripts/<tool>/install.sh` script, and each script can be run standalone. WSL is treated as Ubuntu for package installation; fonts are installed inside WSL and are not automatically installed on the Windows host. Shell configuration and other dotfiles will be added incrementally.
 
 ## Vagrant test VMs
 

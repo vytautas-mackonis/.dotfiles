@@ -32,6 +32,9 @@ Vagrant.configure("2") do |config|
     "arch" => {
       box: "roboxes/arch",
       bootstrap: <<~SHELL
+        if systemctl is-active --quiet systemd-resolved && ! grep -q '^nameserver ' /etc/resolv.conf; then
+          sudo ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
+        fi
         sudo pacman -Sy --needed --noconfirm archlinux-keyring
         sudo pacman -Syu --noconfirm
         sudo pacman -S --needed --noconfirm \

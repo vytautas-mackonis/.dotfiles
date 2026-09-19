@@ -14,21 +14,13 @@ fi
 
 export PATH="$DOTFILES_DIR/bin:$PATH"
 "$DOTFILES_DIR/scripts/shell/install.sh"
-
-if [[ "$OS_FAMILY" == macos ]] && ! command -v brew >/dev/null 2>&1; then
-  printf 'Installing Homebrew noninteractively...\n'
-  NONINTERACTIVE=1 /bin/bash -c \
-    "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-
-  # Make Homebrew available in this invocation on both Intel and Apple Silicon.
-  for brew_prefix in /opt/homebrew /usr/local; do
-    if [[ -x "$brew_prefix/bin/brew" ]]; then
-      export PATH="$brew_prefix/bin:$PATH"
-      break
-    fi
-  done
-fi
-
+"$DOTFILES_DIR/scripts/homebrew/install.sh"
+"$DOTFILES_DIR/scripts/python/install.sh"
+"$DOTFILES_DIR/scripts/node/install.sh"
+"$DOTFILES_DIR/scripts/bun/install.sh"
+"$DOTFILES_DIR/scripts/deno/install.sh"
+"$DOTFILES_DIR/scripts/fzf/install.sh"
+"$DOTFILES_DIR/scripts/podman/install.sh"
 "$DOTFILES_DIR/scripts/fonts/install.sh"
 "$DOTFILES_DIR/scripts/plasma/install.sh"
 "$DOTFILES_DIR/scripts/tmux/install.sh"
