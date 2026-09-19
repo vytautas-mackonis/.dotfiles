@@ -49,6 +49,10 @@ assert_contains scripts/bun/install.sh 'command -v bun'
 assert_contains scripts/deno/install.sh 'command -v deno'
 assert_contains scripts/fzf/install.sh 'command -v fzf'
 assert_contains scripts/podman/install.sh 'command -v podman'
+assert_contains scripts/vim/install.sh 'PlugInstall --sync'
+assert_contains scripts/vim/install.sh 'PlugUpdate --sync'
+assert_contains scripts/vim/install.sh 'PlugClean!'
+assert_contains scripts/vim/install.sh 'ln -sfn'
 
 if grep -Fq 'python python3 node npm bun deno fzf podman' "$ROOT/Vagrantfile"; then
   fail 'Vagrantfile should rely on installers for command verification'
