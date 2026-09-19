@@ -18,6 +18,10 @@ if command -v fnm >/dev/null 2>&1; then
     eval "$(fnm env --use-on-cd)"
 fi
 
+if command -v podman >/dev/null 2>&1 && ! command -v docker >/dev/null 2>&1; then
+    alias docker='podman'
+fi
+
 export MYPS='$(echo -n "${PWD/#$HOME/~}" | awk -F "/" '\''{
 if (length($0) > 20) { if (NF>4) print $1 "/" $2 "/.../" $(NF-1) "/" $NF;
 else if (NF>3) print $1 "/" $2 "/.../" $NF;

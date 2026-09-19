@@ -33,9 +33,13 @@ done
 assert_contains shell/include.sh 'eval "$(fnm env --use-on-cd)"'
 assert_contains shell/include.sh 'BUN_INSTALL="$HOME/.bun"'
 assert_contains shell/include.sh 'DENO_INSTALL="$HOME/.deno"'
+assert_contains shell/include.sh "if command -v podman >/dev/null 2>&1 && ! command -v docker >/dev/null 2>&1; then"
+assert_contains shell/include.sh "alias docker='podman'"
 assert_contains shell/include.fish 'fnm env --use-on-cd | source'
 assert_contains shell/include.fish 'set -gx BUN_INSTALL "$HOME/.bun"'
 assert_contains shell/include.fish 'set -gx DENO_INSTALL "$HOME/.deno"'
+assert_contains shell/include.fish 'if command -q podman; and not command -q docker'
+assert_contains shell/include.fish "alias docker 'podman'"
 
 assert_contains scripts/python/install.sh 'command -v python'
 assert_contains scripts/python/install.sh 'command -v python3'

@@ -13,6 +13,10 @@ if command -q fnm
     fnm env --use-on-cd | source
 end
 
+if command -q podman; and not command -q docker
+    alias docker 'podman'
+end
+
 # Keep the old prompt's user@host:path shape.
 function fish_prompt
     set_color cyan
