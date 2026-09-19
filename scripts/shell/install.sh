@@ -2,16 +2,19 @@
 set -euo pipefail
 
 SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
-DOTFILES_DIR=$(cd -- "$SCRIPT_DIR/../.." && pwd)
+# shellcheck disable=SC1091
+source "$SCRIPT_DIR/../common.sh"
 
-MARKER="# Added by ~/.dotfiles"
+MARKER="# Added by dotfiles"
+LEGACY_MARKER="# Added by ~/.dotfiles"
 
 add_bourne_path() {
   local file=$1
   touch "$file"
-  if grep -Fqx "$MARKER" "$file"; then
+  if grep -Fqx "$MARKER" "$file" || grep -Fqx "$LEGACY_MARKER" "$file"; then
     # Move an existing managed include to the end if the user added content after it.
-    awk -v marker="$MARKER" '($0 == marker) { getline; next } { print }' \
+    awk -v marker="$MARKER" -v legacy_marker="$LEGACY_MARKER" \
+      '($0 == marker || $0 == legacy_marker) { getline; next } { print }' \
       "$file" > "$file.tmp"
     cat "$file.tmp" > "$file"
     rm -f "$file.tmp"
@@ -30,8 +33,9 @@ add_bourne_path "$HOME/.zshrc"
 FISH_CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/fish"
 FISH_CONFIG="$FISH_CONFIG_DIR/config.fish"
 mkdir -p "$FISH_CONFIG_DIR"
-if [[ -f "$FISH_CONFIG" ]] && grep -Fqx "$MARKER" "$FISH_CONFIG"; then
-  awk -v marker="$MARKER" '($0 == marker) { getline; next } { print }' \
+if [[ -f "$FISH_CONFIG" ]] && { grep -Fqx "$MARKER" "$FISH_CONFIG" || grep -Fqx "$LEGACY_MARKER" "$FISH_CONFIG"; }; then
+  awk -v marker="$MARKER" -v legacy_marker="$LEGACY_MARKER" \
+    '($0 == marker || $0 == legacy_marker) { getline; next } { print }' \
     "$FISH_CONFIG" > "$FISH_CONFIG.tmp"
   cat "$FISH_CONFIG.tmp" > "$FISH_CONFIG"
   rm -f "$FISH_CONFIG.tmp"

@@ -3,7 +3,7 @@ set -euo pipefail
 
 DOTFILES_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 # shellcheck disable=SC1091
-source "$DOTFILES_DIR/scripts/os-detect.sh"
+source "$DOTFILES_DIR/scripts/common.sh"
 
 printf 'Detected: %s (family=%s, distro=%s, environment=%s)\n' "$OS_NAME" "$OS_FAMILY" "$OS_DISTRO" "$OS_ENV"
 
