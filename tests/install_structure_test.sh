@@ -73,5 +73,11 @@ if grep -Fq 'python python3 node npm bun deno fzf podman' "$ROOT/Vagrantfile"; t
   fail 'Vagrantfile should rely on installers for command verification'
 fi
 assert_contains Vagrantfile '/run/systemd/resolve/stub-resolv.conf'
+assert_contains Vagrantfile '"windows-wsl"'
+assert_contains Vagrantfile 'gusztavvargadr/windows-10'
+assert_contains Vagrantfile 'Microsoft-Windows-Subsystem-Linux'
+assert_contains Vagrantfile 'VirtualMachinePlatform'
+assert_contains Vagrantfile 'wsl.exe -l -v'
+assert_contains Vagrantfile 'wsl.exe -d Ubuntu'
 
 printf 'install structure test passed\n'
