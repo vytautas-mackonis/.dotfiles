@@ -70,9 +70,15 @@ Vagrant.configure("2") do |config|
           lv.memory = 8192
           lv.cpus = 4
           lv.machine_type = "q35"
-          lv.cpu_mode = "maximum"
-          lv.cpu_model = "EPYC-Milan"
+          lv.cpu_mode = "custom"
+          lv.cpu_model = "EPYC"
+          lv.cpu_feature name: "svm", policy: "require"
           lv.nested = true
+          %w[relaxed vapic vpindex runtime synic stimer tlbflush frequencies ipi].each do |feature|
+            lv.hyperv_feature name: feature, state: "on"
+          end
+          lv.hyperv_feature name: "spinlocks", state: "on", retries: 8191
+          lv.clock_timer name: "hypervclock", present: "yes"
           lv.disk_bus = "sata"
           lv.nic_model_type = "e1000e"
         end
@@ -87,10 +93,15 @@ Vagrant.configure("2") do |config|
         vm.vm.guest = :windows
         vm.vm.communicator = "winrm"
         vm.vm.provision "file", source: DOTFILES_TEST_ARCHIVE, destination: "C:/dotfiles-vagrant.tar.gz"
-        vm.vm.provision "shell", privileged: false, powershell_elevated_interactive: false, inline: machine[:bootstrap]
+        vm.vm.provision "shell", privileged: true, powershell_elevated_interactive: false, inline: machine[:bootstrap]
         vm.vm.provision "reload", reboot: true, delay: 10
-        vm.vm.provision "shell", privileged: false, powershell_elevated_interactive: false, inline: <<~POWERSHELL
+        vm.vm.provision "shell", privileged: true, powershell_elevated_interactive: false, inline: <<~POWERSHELL
           $ErrorActionPreference = "Stop"
+          $wslReadyMarker = "C:\\.dotfiles-wsl-ready"
+          if (Test-Path -LiteralPath $wslReadyMarker) {
+            Write-Output "WSL setup already completed; skipping installation."
+            exit 0
+          }
           $features = @(
             "Microsoft-Windows-Subsystem-Linux",
             "VirtualMachinePlatform"
@@ -101,19 +112,25 @@ Vagrant.configure("2") do |config|
               throw "Required Windows feature '$feature' is not enabled after reboot."
             }
           }
+          wsl.exe --update --web-download
+          if ($LASTEXITCODE -ne 0) {
+            throw "Unable to update WSL."
+          }
           wsl.exe --set-default-version 2
-          $ubuntu = wsl.exe --list --quiet | ForEach-Object { $_.Trim() } | Where-Object { $_ -eq "Ubuntu" }
+          $ubuntu = wsl.exe --list --quiet | ForEach-Object { ($_ -replace "`0", "").Trim() } | Where-Object { $_ -eq "Ubuntu" }
           if (-not $ubuntu) {
-            wsl.exe --install --web-download --distribution Ubuntu
+            wsl.exe --install --distribution Ubuntu --no-launch
             if ($LASTEXITCODE -ne 0) {
               throw "Unable to install Ubuntu WSL2. Check available memory, nested virtualization, and network access."
             }
           }
+          New-Item -ItemType File -Path $wslReadyMarker -Force | Out-Null
+          Write-Output "WSL setup completed."
         POWERSHELL
         vm.vm.provision "reload", reboot: true, delay: 10
         vm.vm.provision "shell", privileged: false, powershell_elevated_interactive: false, inline: <<~POWERSHELL
           $ErrorActionPreference = "Stop"
-          $wslList = (wsl.exe -l -v | Out-String) -replace "`r", ""
+          $wslList = (wsl.exe -l -v | Out-String) -replace "`0", "" -replace "`r", ""
           if ($wslList -match "(?m)^\\s*\\*?\\s*Ubuntu\\s+Running\\s+1\\s*$" -or $wslList -match "(?m)^\\s*\\*?\\s*Ubuntu\\s+Stopped\\s+1\\s*$") {
             throw "Ubuntu WSL distribution is WSL1; enable WSL2 and retry. Output: $wslList"
           }
