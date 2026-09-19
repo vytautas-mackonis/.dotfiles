@@ -59,6 +59,8 @@ Vagrant.configure("2") do |config|
         #{machine[:bootstrap]}
         cd /dotfiles
         ./install.sh
+        export DOTFILES_DIR=/dotfiles
+        ./tests/verify-install.sh
       SHELL
     end
   end

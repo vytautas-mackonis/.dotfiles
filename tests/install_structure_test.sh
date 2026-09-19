@@ -49,6 +49,11 @@ assert_contains scripts/bun/install.sh 'command -v bun'
 assert_contains scripts/deno/install.sh 'command -v deno'
 assert_contains scripts/fzf/install.sh 'command -v fzf'
 assert_contains scripts/podman/install.sh 'command -v podman'
+assert_executable tests/verify-install.sh
+assert_contains tests/verify-install.sh 'for command in python python3 node npm bun deno fzf podman tmux vim; do'
+assert_contains tests/verify-install.sh 'command -v "$command"'
+assert_contains tests/verify-install.sh 'readlink "$HOME/.vim/vimrc"'
+assert_contains tests/verify-install.sh 'readlink "$HOME/.tmux.conf"'
 assert_contains scripts/homebrew/install.sh 'command -v brew'
 assert_contains scripts/homebrew/install.sh 'brew --version'
 assert_contains scripts/shell/install.sh "sed -i.bak '/^set bell-style /d'"
