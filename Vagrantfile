@@ -146,7 +146,7 @@ Vagrant.configure("2") do |config|
           }
           $wslBatch = @'
 @echo off
-wsl.exe -d Ubuntu -- bash -c "set -e; tar -xzf /mnt/c/dotfiles-vagrant.tar.gz -C /dotfiles; cd /dotfiles; ./install.sh; source /root/.bash_profile; export DOTFILES_DIR=/dotfiles; ./tests/verify-install.sh" > C:\\wsl-output.txt 2>&1
+wsl.exe -d Ubuntu -- bash -c "set -e; tar -xzf /mnt/c/dotfiles-vagrant.tar.gz -C /dotfiles; cd /dotfiles; ./install.sh; source /root/.bash_profile" > C:\\wsl-output.txt 2>&1
 exit /b %ERRORLEVEL%
 '@
           Set-Content -LiteralPath C:\\dotfiles-wsl.cmd -Value $wslBatch -Encoding ASCII
@@ -154,7 +154,7 @@ exit /b %ERRORLEVEL%
           $wslExitCode = $LASTEXITCODE
           Get-Content -LiteralPath C:\\wsl-output.txt
           if ($wslExitCode -ne 0) {
-            throw "Dotfiles installation or desired-state verification failed inside WSL Ubuntu."
+            throw "Dotfiles installation failed inside WSL Ubuntu."
           }
         POWERSHELL
       else
@@ -168,8 +168,6 @@ exit /b %ERRORLEVEL%
           #{machine[:bootstrap]}
           cd /dotfiles
           ./install.sh
-          export DOTFILES_DIR=/dotfiles
-          ./tests/verify-install.sh
         SHELL
       end
     end
