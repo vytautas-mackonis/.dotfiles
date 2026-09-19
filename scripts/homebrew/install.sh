@@ -24,4 +24,6 @@ for brew_prefix in /opt/homebrew /usr/local; do
   fi
 done
 
+command -v brew >/dev/null
+brew --version
 printf 'Homebrew is installed.\n'

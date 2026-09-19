@@ -32,9 +32,7 @@ if [[ -e "$TMUX_CONF" || -L "$TMUX_CONF" ]]; then
     mv "$TMUX_CONF" "$TMUX_CONF.backup"
   fi
 fi
-if [[ ! -e "$TMUX_CONF" && ! -L "$TMUX_CONF" ]]; then
-  ln -s "$TMUX_SOURCE" "$TMUX_CONF"
-fi
+ln -sfn "$TMUX_SOURCE" "$TMUX_CONF"
 
 # Install the terminal definitions used by the preserved tmux configuration.
 if command -v tic >/dev/null 2>&1; then
@@ -54,8 +52,23 @@ validate_tmux_config() {
   fi
 }
 
+sync_tmux_plugins() {
+  local tpm_dir="$HOME/.tmux/plugins/tpm"
+
+  if [[ ! -d "$tpm_dir/.git" ]]; then
+    rm -rf "$tpm_dir"
+    git clone https://github.com/tmux-plugins/tpm "$tpm_dir"
+  else
+    git -C "$tpm_dir" pull --ff-only
+  fi
+
+  TMUX_PLUGIN_MANAGER_PATH="$HOME/.tmux/plugins" "$tpm_dir/bin/install_plugins"
+  TMUX_PLUGIN_MANAGER_PATH="$HOME/.tmux/plugins" "$tpm_dir/bin/update_plugins" all
+}
+
 command -v tmux >/dev/null
 tmux -V
 validate_tmux_config
+sync_tmux_plugins
 
 printf 'tmux and its configuration are installed.\n'
