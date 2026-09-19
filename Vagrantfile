@@ -71,6 +71,7 @@ Vagrant.configure("2") do |config|
           lv.cpus = 4
           lv.machine_type = "q35"
           lv.cpu_mode = "host-passthrough"
+          lv.nested = true
           lv.disk_bus = "sata"
           lv.nic_model_type = "e1000e"
         end
