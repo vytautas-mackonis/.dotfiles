@@ -42,7 +42,7 @@ Vagrant.configure("2") do |config|
       SHELL
     },
     "windows-wsl" => {
-      box: "gusztavvargadr/windows-10",
+      box: "gusztavvargadr/windows-11",
       windows: true,
       bootstrap: <<~POWERSHELL
         $ErrorActionPreference = "Stop"
@@ -67,11 +67,24 @@ Vagrant.configure("2") do |config|
       vm.vm.hostname = "dotfiles-#{name}"
 
       if machine[:windows]
+        vm.vm.provider "libvirt" do |lv|
+          lv.memory = 8192
+          lv.cpus = 4
+        end
+        vm.vm.provider "virtualbox" do |vb|
+          vb.memory = 8192
+          vb.cpus = 4
+        end
+        vm.vm.provider "hyperv" do |hv|
+          hv.memory = 8192
+          hv.cpus = 4
+        end
+        vm.vm.guest = :windows
         vm.vm.communicator = "winrm"
         vm.vm.provision "file", source: DOTFILES_TEST_ARCHIVE, destination: "C:/dotfiles-vagrant.tar.gz"
-        vm.vm.provision "powershell", inline: machine[:bootstrap]
+        vm.vm.provision "shell", privileged: false, powershell_elevated_interactive: false, inline: machine[:bootstrap]
         vm.vm.provision "reload", reboot: true, delay: 10
-        vm.vm.provision "powershell", inline: <<~POWERSHELL
+        vm.vm.provision "shell", privileged: false, powershell_elevated_interactive: false, inline: <<~POWERSHELL
           $ErrorActionPreference = "Stop"
           $features = @(
             "Microsoft-Windows-Subsystem-Linux",
@@ -86,11 +99,14 @@ Vagrant.configure("2") do |config|
           wsl.exe --set-default-version 2
           $ubuntu = wsl.exe --list --quiet | ForEach-Object { $_.Trim() } | Where-Object { $_ -eq "Ubuntu" }
           if (-not $ubuntu) {
-            wsl.exe --install --distribution Ubuntu --no-launch
+            wsl.exe --install --web-download --distribution Ubuntu
+            if ($LASTEXITCODE -ne 0) {
+              throw "Unable to install Ubuntu WSL2. Check available memory, nested virtualization, and network access."
+            }
           }
         POWERSHELL
         vm.vm.provision "reload", reboot: true, delay: 10
-        vm.vm.provision "powershell", inline: <<~POWERSHELL
+        vm.vm.provision "shell", privileged: false, powershell_elevated_interactive: false, inline: <<~POWERSHELL
           $ErrorActionPreference = "Stop"
           $wslList = (wsl.exe -l -v | Out-String) -replace "`r", ""
           if ($wslList -match "(?m)^\\s*\\*?\\s*Ubuntu\\s+Running\\s+1\\s*$" -or $wslList -match "(?m)^\\s*\\*?\\s*Ubuntu\\s+Stopped\\s+1\\s*$") {

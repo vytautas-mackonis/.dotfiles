@@ -63,10 +63,10 @@ Ubuntu and Arch native Linux are covered by these Vagrant targets.
 
 ## Windows WSL test
 
-On a host/provider supported by `gusztavvargadr/windows-10`:
+On a host/provider supported by `gusztavvargadr/windows-11`:
 
 ```bash
 vagrant up windows-wsl
 ```
 
-This boots a prebuilt Windows VM, enables WSL2, installs Ubuntu, and runs the dotfiles installer inside Ubuntu WSL. Nested virtualization is required. The Windows 10 box is amd64-only and supports libvirt, VirtualBox, VMware Desktop/Fusion, and Hyper-V; it does not support Parallels or Apple Silicon macOS.
+This boots a prebuilt Windows VM, enables WSL2, installs Ubuntu, and runs the dotfiles installer inside Ubuntu WSL. Nested virtualization is required. The Windows 11 box is amd64-only for this target and supports libvirt, VirtualBox, VMware Desktop/Fusion, and Hyper-V; it does not support Parallels or Apple Silicon macOS.
