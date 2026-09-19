@@ -4,7 +4,7 @@ syntax on
 set exrc
 set number
 set relativenumber
-set visualbell
+set noerrorbells
 set backspace=indent,eol,start
 
 set directory=~/.vim/swapfiles//
