@@ -34,14 +34,18 @@ if [[ ! -f "$VIM_DIR/autoload/plug.vim" ]]; then
     https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
 fi
 
+VIMRC_SOURCE="$DOTFILES_DIR/vim/vimrc"
 if [[ -e "$VIMRC" || -L "$VIMRC" ]]; then
-  if [[ "$(readlink -f "$VIMRC" 2>/dev/null || true)" != "$DOTFILES_DIR/vim/vimrc" ]]; then
+  VIMRC_TARGET=$(readlink "$VIMRC" 2>/dev/null || true)
+  if [[ "$VIMRC_TARGET" != "$VIMRC_SOURCE" ]]; then
     mv "$VIMRC" "$VIMRC.backup"
   fi
 fi
-if [[ ! -e "$VIMRC" && ! -L "$VIMRC" ]]; then
-  ln -s "$DOTFILES_DIR/vim/vimrc" "$VIMRC"
-fi
+ln -sfn "$VIMRC_SOURCE" "$VIMRC"
 
-vim -Nu "$VIMRC" -n +PlugInstall +qall
-printf 'Vim and its plugins are installed.\n'
+vim -Nu "$VIMRC" -n \
+  +'PlugInstall --sync' \
+  +'PlugUpdate --sync' \
+  +'PlugClean!' \
+  +qall
+printf 'Vim, its configuration, and its plugins are synced.\n'
