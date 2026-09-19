@@ -10,7 +10,17 @@ else
 fi
 
 export DOTFILES_DIR
-export PATH="$DOTFILES_DIR/bin:/usr/local/bin:$HOME/bin:$HOME/.local/bin:$PATH"
+export BUN_INSTALL="$HOME/.bun"
+export DENO_INSTALL="$HOME/.deno"
+export PATH="/opt/homebrew/bin:/usr/local/bin:$DOTFILES_DIR/bin:$HOME/bin:$HOME/.local/bin:$HOME/.local/share/fnm:$BUN_INSTALL/bin:$DENO_INSTALL/bin:$PATH"
+
+if command -v fnm >/dev/null 2>&1; then
+    eval "$(fnm env --use-on-cd)"
+fi
+
+if command -v podman >/dev/null 2>&1 && ! command -v docker >/dev/null 2>&1; then
+    alias docker='podman'
+fi
 
 export MYPS='$(echo -n "${PWD/#$HOME/~}" | awk -F "/" '\''{
 if (length($0) > 20) { if (NF>4) print $1 "/" $2 "/.../" $(NF-1) "/" $NF;
