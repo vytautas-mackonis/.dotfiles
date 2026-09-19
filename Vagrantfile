@@ -56,7 +56,6 @@ Vagrant.configure("2") do |config|
             Enable-WindowsOptionalFeature -Online -FeatureName $feature -All -NoRestart
           }
         }
-        wsl.exe --set-default-version 2
       POWERSHELL
     }
   }
@@ -70,6 +69,10 @@ Vagrant.configure("2") do |config|
         vm.vm.provider "libvirt" do |lv|
           lv.memory = 8192
           lv.cpus = 4
+          lv.machine_type = "q35"
+          lv.cpu_mode = "host-passthrough"
+          lv.disk_bus = "sata"
+          lv.nic_model_type = "e1000e"
         end
         vm.vm.provider "virtualbox" do |vb|
           vb.memory = 8192
