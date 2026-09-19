@@ -43,11 +43,9 @@ fi
 } >> "$FISH_CONFIG"
 
 INPUTRC="$HOME/.inputrc"
-if [[ ! -f "$INPUTRC" ]]; then
-  touch "$INPUTRC"
-fi
-if ! grep -Fqx 'set bell-style none' "$INPUTRC"; then
-  printf '\nset bell-style none\n' >> "$INPUTRC"
-fi
+touch "$INPUTRC"
+sed -i.bak '/^set bell-style /d' "$INPUTRC"
+rm -f "$INPUTRC.bak"
+printf '\nset bell-style none\n' >> "$INPUTRC"
 
 printf 'Added the dotfiles general include to Bash, Zsh, and Fish.\n'
