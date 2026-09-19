@@ -42,4 +42,20 @@ if command -v tic >/dev/null 2>&1; then
   tic "$DOTFILES_DIR/resources/xterm-256color-italic.terminfo"
 fi
 
+validate_tmux_config() {
+  local socket_name=dotfiles-install
+
+  tmux -L "$socket_name" kill-server >/dev/null 2>&1 || true
+  if tmux -L "$socket_name" -f /dev/null start-server \; source-file -n /dev/null \; kill-server >/dev/null 2>&1; then
+    tmux -L "$socket_name" -f /dev/null start-server \; source-file -n "$TMUX_CONF" \; kill-server
+  else
+    tmux -L "$socket_name" kill-server >/dev/null 2>&1 || true
+    tmux -L "$socket_name" -f "$TMUX_CONF" start-server \; kill-server
+  fi
+}
+
+command -v tmux >/dev/null
+tmux -V
+validate_tmux_config
+
 printf 'tmux and its configuration are installed.\n'
