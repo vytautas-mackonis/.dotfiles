@@ -93,13 +93,30 @@ Vagrant.configure("2") do |config|
         vm.vm.provision "powershell", inline: <<~POWERSHELL
           $ErrorActionPreference = "Stop"
           $wslList = (wsl.exe -l -v | Out-String) -replace "`r", ""
-          if ($wslList -match "(?m)^\\s*Ubuntu\\s+Running\\s+1\\s*$" -or $wslList -match "(?m)^\\s*Ubuntu\\s+Stopped\\s+1\\s*$") {
+          if ($wslList -match "(?m)^\\s*\\*?\\s*Ubuntu\\s+Running\\s+1\\s*$" -or $wslList -match "(?m)^\\s*\\*?\\s*Ubuntu\\s+Stopped\\s+1\\s*$") {
             throw "Ubuntu WSL distribution is WSL1; enable WSL2 and retry. Output: $wslList"
           }
-          if ($wslList -notmatch "(?m)^\\s*Ubuntu\\s+(Running|Stopped)\\s+2\\s*$") {
+          if ($wslList -notmatch "(?m)^\\s*\\*?\\s*Ubuntu\\s+(Running|Stopped)\\s+2\\s*$") {
             throw "Ubuntu WSL distribution is missing or is not version 2. Output: $wslList"
           }
           wsl.exe -d Ubuntu -- bash -lc "printf 'WSL Ubuntu is available\\n'"
+          if ($LASTEXITCODE -ne 0) {
+            throw "Unable to execute a command in WSL Ubuntu."
+          }
+          $archive = "C:\\dotfiles-vagrant.tar.gz"
+          $wslArchive = "/tmp/dotfiles-vagrant.tar.gz"
+          wsl.exe -d Ubuntu -- bash -lc "rm -rf /dotfiles && mkdir -p /dotfiles"
+          if ($LASTEXITCODE -ne 0) {
+            throw "Unable to prepare /dotfiles in WSL Ubuntu."
+          }
+          Get-Content -LiteralPath $archive -Encoding Byte | wsl.exe -d Ubuntu -- bash -lc "cat > $wslArchive"
+          if ($LASTEXITCODE -ne 0) {
+            throw "Unable to transfer the dotfiles archive into WSL Ubuntu."
+          }
+          wsl.exe -d Ubuntu -- bash -lc "tar -xzf $wslArchive -C /dotfiles && cd /dotfiles && ./install.sh && export DOTFILES_DIR=/dotfiles && ./tests/verify-install.sh"
+          if ($LASTEXITCODE -ne 0) {
+            throw "Dotfiles installation or desired-state verification failed inside WSL Ubuntu."
+          }
         POWERSHELL
       else
         vm.vm.provision "file", source: DOTFILES_TEST_ARCHIVE, destination: "/tmp/dotfiles.tar.gz"
