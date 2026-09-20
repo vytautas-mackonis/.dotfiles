@@ -17,6 +17,10 @@ export PATH="$DOTFILES_DIR/bin:$PATH"
 "$DOTFILES_DIR/scripts/homebrew/install.sh"
 "$DOTFILES_DIR/scripts/python/install.sh"
 "$DOTFILES_DIR/scripts/node/install.sh"
+if [[ -x "$HOME/.local/share/fnm/fnm" ]]; then
+  eval "$("$HOME/.local/share/fnm/fnm" env --shell bash)"
+fi
+"$DOTFILES_DIR/scripts/pi/install.sh"
 "$DOTFILES_DIR/scripts/bun/install.sh"
 "$DOTFILES_DIR/scripts/deno/install.sh"
 if [[ -f "$HOME/.deno/env" ]]; then

@@ -22,6 +22,30 @@ assert_contains() {
   grep -Fq -- "$expected" "$ROOT/$file" || fail "$file does not contain: $expected"
 }
 
+for path in scripts/pi/install.sh bin/pi-superpowers bin/pi-update pi/settings.json pi/skills.conf; do
+  assert_file "$path"
+done
+for path in scripts/pi/install.sh bin/pi-superpowers bin/pi-update; do
+  assert_executable "$path"
+done
+assert_contains install.sh '"$DOTFILES_DIR/scripts/pi/install.sh"'
+assert_contains install.sh 'env --shell bash'
+if grep -Fq 'readlink -f' "$ROOT/scripts/pi/install.sh"; then
+  fail 'Pi installer must use portable symlink comparison'
+fi
+assert_contains pi/settings.json '"defaultProvider": "openai-codex"'
+assert_contains pi/settings.json '"defaultModel": "gpt-5.6-luna"'
+assert_contains pi/settings.json '"defaultThinkingLevel": "medium"'
+assert_contains pi/settings.json 'npm:pi-subagents'
+assert_contains pi/settings.json 'npm:@gotgenes/pi-anthropic-auth'
+assert_contains tests/pi_install_test.sh 'cmp "$HOME/.pi/agent/auth.json"'
+assert_contains tests/pi_install_test.sh 'cmp "$HOME/.pi/agent/models-store.json"'
+assert_contains tests/pi_install_test.sh 'settings.json.bak'
+if grep -Eqi 'mattpocock|superpowers' "$ROOT/pi/settings.json"; then
+  fail 'pi/settings.json should not select a skillset'
+fi
+assert_contains README.md '## Pi Coding Agent'
+
 for tool in homebrew python node bun deno fzf podman; do
   script="scripts/$tool/install.sh"
   assert_file "$script"
@@ -63,6 +87,18 @@ assert_contains scripts/vim/install.sh 'PlugInstall --sync'
 assert_contains scripts/vim/install.sh 'vim -Nu "$VIMRC" -n'
 assert_contains scripts/vim/install.sh 'PlugClean!'
 assert_contains scripts/vim/install.sh 'ln -sfn'
+assert_contains bin/pi-superpowers '--skill "$HOME/agent-skillsets/superpowers/skills"'
+assert_contains bin/pi-superpowers '.pi/extensions/superpowers.ts'
+assert_contains shell/include.fish 'agent-skillsets/mattpocock-skills/skills'
+assert_contains pi/skills.conf 'agent-skillsets/mattpocock-skills'
+assert_contains pi/skills.conf 'agent-skillsets/superpowers'
+if grep -Fq -- '--no-skills' "$ROOT/bin/pi-superpowers"; then
+  fail 'pi-superpowers should preserve normal skill discovery'
+fi
+if grep -Fqi -- 'mattpocock' "$ROOT/bin/pi-superpowers"; then
+  fail 'pi-superpowers should not load Matt Pocock skills'
+fi
+assert_contains bin/pi-update 'update --all'
 
 if grep -Fq 'python python3 node npm bun deno fzf podman' "$ROOT/Vagrantfile"; then
   fail 'Vagrantfile should rely on installers for command verification'

@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
+DOTFILES_DIR=$(cd -- "$SCRIPT_DIR/.." && pwd)
+# shellcheck disable=SC1091
+source "$DOTFILES_DIR/pi/skills.conf"
+
+PI_BIN=$(command -v pi)
+GIT_BIN=$(command -v git)
+
+printf 'Updating Pi and installed packages/extensions...\n'
+"$PI_BIN" update --all
+
+printf 'Updating Matt Pocock skills...\n'
+"$GIT_BIN" -C "$MATTPOCOCK_SKILLS_DIR" pull --ff-only
+
+printf 'Updating Superpowers...\n'
+"$GIT_BIN" -C "$SUPERPOWERS_SKILLS_DIR" pull --ff-only
+
+printf 'Pi, extensions, and both skillsets are up to date.\n'

@@ -17,6 +17,17 @@ if command -q podman; and not command -q docker
     alias docker 'podman'
 end
 
+# Load Matt Pocock skills for normal Pi sessions. Pi package subcommands must
+# bypass this function so their arguments retain Pi's command syntax.
+function pi
+    switch "$argv[1]"
+        case install remove uninstall update list config auth
+            command pi $argv
+        case '*'
+            command pi --skill "$HOME/agent-skillsets/mattpocock-skills/skills" $argv
+    end
+end
+
 # Keep the old prompt's user@host:path shape.
 function fish_prompt
     set_color cyan
