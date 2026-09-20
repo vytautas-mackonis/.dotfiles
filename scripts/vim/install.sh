@@ -45,7 +45,6 @@ case "$OS_FAMILY:$OS_DISTRO" in
         DEBIAN_FRONTEND=noninteractive sudo -n apt-get install -y vim build-essential
         ;;
       *)
-        sudo -n add-apt-repository --remove -y ppa:jonathonf/vim >/dev/null 2>&1 || true
         DEBIAN_FRONTEND=noninteractive sudo -n apt-get install -y vim build-essential git libncurses-dev
         ;;
     esac
