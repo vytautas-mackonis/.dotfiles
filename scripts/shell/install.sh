@@ -9,6 +9,13 @@ MARKER="# Added by dotfiles"
 
 add_bourne_path() {
   local file=$1
+  if [[ -L "$file" && ! -e "$file" ]]; then
+    local backup="$file.backup"
+    if [[ -e "$backup" || -L "$backup" ]]; then
+      backup="$file.backup.$(date +%s)"
+    fi
+    mv "$file" "$backup"
+  fi
   touch "$file"
   if grep -Fqx "$MARKER" "$file"; then
     # Move an existing managed include to the end if the user added content after it.
