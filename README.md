@@ -12,7 +12,7 @@ The installer currently:
 4. Installs the latest Python available through uv and exposes it as `python` and `python3` from `~/.local/bin`.
 5. Installs the latest Node.js through fnm and initializes fnm from the shell includes.
 6. Installs the Rust stable toolchain through rustup.
-7. Installs Bun, Deno, fzf, Podman, GitHub CLI, and GitLab CLI.
+7. Installs Bun, Deno, fzf, Podman, GitHub CLI, and GitLab CLI. On Linux with systemd, configures rootless Podman delegation for kind; macOS skips this because Podman runs in its VM, and WSL without systemd reports a warning.
 8. Installs the bundled fonts for the current OS.
 9. Configures KDE Plasma to enable NumLock at session startup when running on Linux with Plasma tools available.
 10. Installs tmux using Homebrew, apt, or pacman, links the preserved tmux configuration, and installs its terminal definitions.
