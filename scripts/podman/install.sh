@@ -52,10 +52,10 @@ configure_rootless_delegation() {
   printf '[Service]\nDelegate=yes\n' | sudo -n tee "$dropin_path" >/dev/null
   sudo -n systemctl daemon-reload
 
-  if systemctl --user show-environment >/dev/null 2>&1; then
-    systemctl --user set-property --runtime user.slice Delegate=yes
-  else
-    printf 'User systemd manager is unavailable; log in again to activate Podman delegation.\n' >&2
+  local uid
+  uid=$(id -u)
+  if ! sudo -n systemctl set-property --runtime "user@${uid}.service" Delegate=yes; then
+    printf 'Could not apply Podman delegation to the current user session; log in again to activate it.\n' >&2
   fi
 }
 
