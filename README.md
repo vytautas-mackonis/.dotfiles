@@ -45,6 +45,7 @@ Prerequisites on the host:
 - Vagrant
 - A Vagrant provider supported by the selected box, such as VirtualBox, VMware, Parallels, or libvirt
 - `vagrant-reload` for the Windows WSL target (`vagrant plugin install vagrant-reload`)
+- `vagrant-tart` and Tart for the macOS target (`vagrant plugin install vagrant-tart`)
 
 Start a test VM:
 
@@ -52,6 +53,8 @@ Start a test VM:
 vagrant up ubuntu
 # or
 vagrant up arch
+# or, on Apple Silicon macOS with Tart
+vagrant up macos --provider=tart
 ```
 
 After provisioning completes, inspect the VM with:
@@ -69,7 +72,7 @@ vagrant destroy -f ubuntu
 vagrant up ubuntu
 ```
 
-Ubuntu and Arch native Linux are covered by these Vagrant targets.
+Ubuntu and Arch native Linux are covered by these Vagrant targets. The `macos` target uses Tart’s headless macOS Sequoia base image and mounts the repository with VirtioFS before running `./install.sh`.
 
 ## Windows WSL test
 

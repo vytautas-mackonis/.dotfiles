@@ -20,6 +20,13 @@ Vagrant.configure("2") do |config|
     lv.management_network_address = "192.168.122.0/24"
   end
 
+  config.vm.provider "tart" do |tart|
+    tart.image = "ghcr.io/cirruslabs/macos-sequoia-base:latest"
+    tart.name = "dotfiles-macos"
+    tart.gui = false
+    tart.vnc = false
+  end
+
   machines = {
     "ubuntu" => {
       box: "bento/ubuntu-24.04",
@@ -40,6 +47,11 @@ Vagrant.configure("2") do |config|
         sudo pacman -S --needed --noconfirm \
           ca-certificates curl git sudo ncurses
       SHELL
+    },
+    "macos" => {
+      box: "dummy",
+      macos: true,
+      bootstrap: ""
     },
     "windows-wsl" => {
       box: "gusztavvargadr/windows-11",
@@ -64,6 +76,24 @@ Vagrant.configure("2") do |config|
     config.vm.define name do |vm|
       vm.vm.box = machine[:box]
       vm.vm.hostname = "dotfiles-#{name}"
+
+      if machine[:macos]
+        vm.ssh.username = "admin"
+        vm.ssh.password = "admin"
+        vm.ssh.shell = "/bin/sh"
+        vm.ssh.insert_key = false
+        vm.ssh.private_key_path = []
+        vm.vm.provider "tart" do |tart|
+          tart.image = "ghcr.io/cirruslabs/macos-sequoia-base:latest"
+          tart.name = "dotfiles-macos"
+          tart.cpus = 2
+          tart.memory = 4096
+          tart.disk = 60
+          tart.gui = false
+          tart.vnc = false
+          tart.volumes = ["#{File.expand_path(".")}:tag=dotfiles"]
+        end
+      end
 
       if machine[:windows]
         vm.vm.provider "libvirt" do |lv|
@@ -158,17 +188,32 @@ exit /b %ERRORLEVEL%
           }
         POWERSHELL
       else
-        vm.vm.provision "file", source: DOTFILES_TEST_ARCHIVE, destination: "/tmp/dotfiles.tar.gz"
-        vm.vm.provision "shell", privileged: false, inline: <<~SHELL
-          set -eux
-          sudo rm -rf /dotfiles
-          sudo mkdir -p /dotfiles
-          sudo chown "$USER:$USER" /dotfiles
-          tar -xzf /tmp/dotfiles.tar.gz -C /dotfiles
-          #{machine[:bootstrap]}
-          cd /dotfiles
-          ./install.sh
-        SHELL
+        dotfiles_dir = machine[:macos] ? "/Users/admin/dotfiles" : "/dotfiles"
+        if machine[:macos]
+          vm.vm.provision "shell", privileged: false, inline: <<~SHELL
+            set -eux
+            printf '%s\\n' admin | sudo -S -p '' sh -c 'grep -q "^admin ALL=(ALL) NOPASSWD: ALL$" /etc/sudoers || printf "%s\\n" "admin ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers'
+            sudo -n true
+            sudo mkdir -p #{dotfiles_dir}
+            if ! mount | grep -q "on #{dotfiles_dir} "; then
+              sudo mount_virtiofs dotfiles #{dotfiles_dir}
+            fi
+            cd #{dotfiles_dir}
+            /bin/zsh -lic './install.sh'
+          SHELL
+        else
+          vm.vm.provision "file", source: DOTFILES_TEST_ARCHIVE, destination: "/tmp/dotfiles.tar.gz"
+          vm.vm.provision "shell", privileged: false, inline: <<~SHELL
+            set -eux
+            sudo rm -rf #{dotfiles_dir}
+            sudo mkdir -p #{dotfiles_dir}
+            sudo chown "$USER:$USER" #{dotfiles_dir}
+            tar -xzf /tmp/dotfiles.tar.gz -C #{dotfiles_dir}
+            #{machine[:bootstrap]}
+            cd #{dotfiles_dir}
+            ./install.sh
+          SHELL
+        end
       end
     end
   end

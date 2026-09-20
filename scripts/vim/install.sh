@@ -49,8 +49,8 @@ vim -Nu "$VIMRC" -n -es \
   +'PlugInstall --sync' \
   +qall || true
 
-vim -Nu "$VIMRC" -n \
+vim -Nu "$VIMRC" -n -es \
   +'PlugInstall --sync' \
-  +'PlugClean!' \
+  +'silent! PlugClean!' \
   +qall </dev/null
 printf 'Vim, its configuration, and its plugins are synced.\n'

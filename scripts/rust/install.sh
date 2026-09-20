@@ -30,13 +30,13 @@ fi
 
 CARGO_BIN="$CARGO_HOME_DIR/bin"
 if [[ -x "$CARGO_BIN/cargo" ]]; then
-  CARGO_BIN/cargo --version
+  "$CARGO_BIN/cargo" --version
 else
   require_command cargo
   cargo --version
 fi
 if [[ -x "$CARGO_BIN/rustc" ]]; then
-  CARGO_BIN/rustc --version
+  "$CARGO_BIN/rustc" --version
 else
   require_command rustc
   rustc --version
