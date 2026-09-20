@@ -9,12 +9,24 @@ printf 'Detected: %s (family=%s, distro=%s, environment=%s)\n' "$OS_NAME" "$OS_F
 
 # Authenticate once where package installation may need administrator access.
 if [[ "$OS_FAMILY" == linux || "$OS_FAMILY" == macos ]]; then
-  sudo -v
+  if [[ -t 0 && -t 1 ]]; then
+    sudo -v
+  else
+    sudo -n true
+  fi
 fi
 
 export PATH="$DOTFILES_DIR/bin:$PATH"
 "$DOTFILES_DIR/scripts/shell/install.sh"
 "$DOTFILES_DIR/scripts/homebrew/install.sh"
+if [[ "$OS_FAMILY" == macos ]]; then
+  for brew_prefix in /opt/homebrew /usr/local; do
+    if [[ -x "$brew_prefix/bin/brew" ]]; then
+      export PATH="$brew_prefix/bin:$PATH"
+      break
+    fi
+  done
+fi
 "$DOTFILES_DIR/scripts/python/install.sh"
 "$DOTFILES_DIR/scripts/node/install.sh"
 "$DOTFILES_DIR/scripts/rust/install.sh"

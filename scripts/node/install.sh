@@ -27,7 +27,16 @@ install_prerequisites
 
 FNM_BIN="$HOME/.local/share/fnm/fnm"
 if [[ ! -x "$FNM_BIN" ]]; then
-  curl -fsSL https://fnm.vercel.app/install | bash -s -- --skip-shell
+  if command -v fnm >/dev/null 2>&1; then
+    FNM_BIN=$(command -v fnm)
+  else
+    curl -fsSL https://fnm.vercel.app/install | bash -s -- --skip-shell
+  fi
+fi
+
+if [[ ! -x "$FNM_BIN" ]]; then
+  printf 'Unable to locate fnm after installation.\n' >&2
+  exit 1
 fi
 
 LATEST_NODE_VERSION=$("$FNM_BIN" ls-remote | awk '/^v[0-9]+\.[0-9]+\.[0-9]+/ { print $1 }' | tail -n 1)
