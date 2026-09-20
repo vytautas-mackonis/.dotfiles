@@ -12,12 +12,12 @@ The installer currently:
 4. Installs the latest Python available through uv and exposes it as `python` and `python3` from `~/.local/bin`.
 5. Installs the latest Node.js through fnm and initializes fnm from the shell includes.
 6. Installs the Rust stable toolchain through rustup.
-7. Installs Bun, Deno, fzf, and Podman.
-7. Installs the bundled fonts for the current OS.
-8. Configures KDE Plasma to enable NumLock at session startup when running on Linux with Plasma tools available.
-9. Installs tmux using Homebrew, apt, or pacman, links the preserved tmux configuration, and installs its terminal definitions.
-10. Installs the latest Vim version available from the platform package manager.
-11. Configures Vim with the plugin set from the previous dotfiles repository using vim-plug.
+7. Installs Bun, Deno, fzf, Podman, GitHub CLI, and GitLab CLI.
+8. Installs the bundled fonts for the current OS.
+9. Configures KDE Plasma to enable NumLock at session startup when running on Linux with Plasma tools available.
+10. Installs tmux using Homebrew, apt, or pacman, links the preserved tmux configuration, and installs its terminal definitions.
+11. Installs the latest Vim version available from the platform package manager.
+12. Configures Vim with the plugin set from the previous dotfiles repository using vim-plug.
 13. Installs and configures Pi Coding Agent with the tracked package and default model settings.
 
 ## Pi Coding Agent

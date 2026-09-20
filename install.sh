@@ -42,6 +42,8 @@ if [[ -f "$HOME/.deno/env" ]]; then
 fi
 "$DOTFILES_DIR/scripts/fzf/install.sh"
 "$DOTFILES_DIR/scripts/podman/install.sh"
+"$DOTFILES_DIR/scripts/github-cli/install.sh"
+"$DOTFILES_DIR/scripts/gitlab-cli/install.sh"
 "$DOTFILES_DIR/scripts/fonts/install.sh"
 "$DOTFILES_DIR/scripts/plasma/install.sh"
 "$DOTFILES_DIR/scripts/tmux/install.sh"

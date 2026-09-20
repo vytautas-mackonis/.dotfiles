@@ -55,7 +55,7 @@ assert_contains scripts/rust/install.sh 'toolchain install stable --profile defa
 assert_contains scripts/rust/install.sh 'default stable'
 assert_contains install.sh '"$DOTFILES_DIR/scripts/rust/install.sh"'
 
-for tool in homebrew python node bun deno fzf podman; do
+for tool in homebrew python node bun deno fzf podman github-cli gitlab-cli; do
   script="scripts/$tool/install.sh"
   assert_file "$script"
   assert_executable "$script"
@@ -84,6 +84,14 @@ assert_contains scripts/bun/install.sh 'command -v bun'
 assert_contains scripts/deno/install.sh 'command -v deno'
 assert_contains scripts/fzf/install.sh 'command -v fzf'
 assert_contains scripts/podman/install.sh 'command -v podman'
+assert_contains scripts/github-cli/install.sh 'brew install --yes gh'
+assert_contains scripts/github-cli/install.sh 'sudo -n apt-get install -y gh'
+assert_contains scripts/github-cli/install.sh 'sudo -n pacman -S --needed --noconfirm github-cli'
+assert_contains scripts/github-cli/install.sh 'command -v gh'
+assert_contains scripts/gitlab-cli/install.sh 'brew install --yes glab'
+assert_contains scripts/gitlab-cli/install.sh 'sudo -n apt-get install -y glab'
+assert_contains scripts/gitlab-cli/install.sh 'sudo -n pacman -S --needed --noconfirm glab'
+assert_contains scripts/gitlab-cli/install.sh 'command -v glab'
 assert_contains scripts/homebrew/install.sh 'command -v brew'
 assert_contains scripts/homebrew/install.sh 'brew --version'
 assert_contains scripts/shell/install.sh "sed -i.bak '/^set bell-style /d'"
