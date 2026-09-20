@@ -14,6 +14,11 @@ case "$OS_FAMILY:$OS_DISTRO" in
     brew install --yes vim
     ;;
   linux:ubuntu)
+    # Ubuntu's default repositories can ship a Vim older than the minimum
+    # required by the current denops.vim and ddc.vim releases (9.1.1646).
+    DEBIAN_FRONTEND=noninteractive sudo -n apt-get install -y software-properties-common
+    sudo -n add-apt-repository -y ppa:jonathonf/vim
+    DEBIAN_FRONTEND=noninteractive sudo -n apt-get update
     DEBIAN_FRONTEND=noninteractive sudo -n apt-get install -y vim build-essential
     ;;
   linux:arch)
@@ -24,6 +29,13 @@ case "$OS_FAMILY:$OS_DISTRO" in
     exit 1
     ;;
 esac
+
+if ! vim --version >/dev/null 2>&1 || ! vim -Nu NONE -n -es \
+    +'if !has("patch-9.1.1646") | cquit | endif' \
+    +qall </dev/null; then
+  printf 'Vim 9.1.1646 or newer is required by denops.vim and ddc.vim.\n' >&2
+  exit 1
+fi
 
 VIM_DIR="$HOME/.vim"
 VIMRC="$VIM_DIR/vimrc"
