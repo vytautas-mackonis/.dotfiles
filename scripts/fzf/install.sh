@@ -10,7 +10,7 @@ case "$OS_FAMILY:$OS_DISTRO" in
     if ! command -v brew >/dev/null 2>&1; then
       "$DOTFILES_DIR/scripts/homebrew/install.sh"
     fi
-    brew install fzf
+    NONINTERACTIVE=1 brew install fzf
     ;;
   linux:ubuntu)
     sudo apt-get update

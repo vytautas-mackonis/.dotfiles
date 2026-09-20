@@ -11,7 +11,7 @@ case "$OS_FAMILY:$OS_DISTRO" in
       printf 'Homebrew is required to install tmux on macOS.\n' >&2
       exit 1
     fi
-    brew install tmux
+    NONINTERACTIVE=1 brew install tmux
     ;;
   linux:ubuntu)
     DEBIAN_FRONTEND=noninteractive sudo -n apt-get install -y tmux
