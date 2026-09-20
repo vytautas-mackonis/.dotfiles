@@ -89,6 +89,8 @@ assert_contains scripts/homebrew/install.sh 'brew --version'
 assert_contains scripts/shell/install.sh "sed -i.bak '/^set bell-style /d'"
 assert_contains scripts/tmux/install.sh 'command -v tmux'
 assert_contains scripts/tmux/install.sh 'tmux -V'
+assert_contains scripts/tmux/install.sh 'wl-clipboard xclip'
+assert_contains scripts/tmux/install.sh 'sudo -n pacman -S --needed --noconfirm tmux wl-clipboard xclip'
 assert_contains scripts/tmux/install.sh 'source-file -n'
 assert_contains scripts/tmux/install.sh 'ln -sfn'
 assert_contains scripts/tmux/install.sh 'git clone https://github.com/tmux-plugins/tpm'
