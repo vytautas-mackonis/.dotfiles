@@ -60,7 +60,7 @@ assert_contains scripts/tmux/install.sh 'git clone https://github.com/tmux-plugi
 assert_contains scripts/tmux/install.sh 'install_plugins'
 assert_contains scripts/tmux/install.sh 'update_plugins" all'
 assert_contains scripts/vim/install.sh 'PlugInstall --sync'
-assert_contains scripts/vim/install.sh 'PlugUpdate --sync'
+assert_contains scripts/vim/install.sh 'vim -Nu "$VIMRC" -n'
 assert_contains scripts/vim/install.sh 'PlugClean!'
 assert_contains scripts/vim/install.sh 'ln -sfn'
 
