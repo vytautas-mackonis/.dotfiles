@@ -25,13 +25,11 @@ install_prerequisites() {
 
 install_prerequisites
 
-FNM_BIN="$HOME/.local/share/fnm/fnm"
-if [[ ! -x "$FNM_BIN" ]]; then
-  if command -v fnm >/dev/null 2>&1; then
-    FNM_BIN=$(command -v fnm)
-  else
-    curl -fsSL https://fnm.vercel.app/install | bash -s -- --skip-shell
-  fi
+if command -v fnm >/dev/null 2>&1; then
+  FNM_BIN=$(command -v fnm)
+else
+  curl -fsSL https://fnm.vercel.app/install | bash -s -- --skip-shell
+  FNM_BIN=$(command -v fnm 2>/dev/null || printf '%s' "$HOME/.local/share/fnm/fnm")
 fi
 
 if [[ ! -x "$FNM_BIN" ]]; then
