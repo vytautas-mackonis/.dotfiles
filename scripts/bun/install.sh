@@ -23,10 +23,13 @@ install_prerequisites() {
   esac
 }
 
-install_prerequisites
-curl -fsSL https://bun.sh/install | bash
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
+
+if [[ ! -x "$BUN_INSTALL/bin/bun" ]]; then
+  install_prerequisites
+  curl -fsSL https://bun.sh/install | bash
+fi
 
 command -v bun >/dev/null
 bun --version

@@ -23,10 +23,13 @@ install_prerequisites() {
   esac
 }
 
-install_prerequisites
-curl -fsSL https://deno.land/install.sh | sh -s -- --yes
 export DENO_INSTALL="$HOME/.deno"
 export PATH="$DENO_INSTALL/bin:$PATH"
+
+if [[ ! -x "$DENO_INSTALL/bin/deno" ]]; then
+  install_prerequisites
+  curl -fsSL https://deno.land/install.sh | sh -s -- --yes
+fi
 
 command -v deno >/dev/null
 deno --version
