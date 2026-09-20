@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+exec "$(command -v pi)" \
+  --skill "$HOME/agent-skillsets/superpowers/skills" \
+  -e "$HOME/agent-skillsets/superpowers/.pi/extensions/superpowers.ts" \
+  "$@"

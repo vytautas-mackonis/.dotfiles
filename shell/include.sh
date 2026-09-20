@@ -18,6 +18,19 @@ if command -v fnm >/dev/null 2>&1; then
     eval "$(fnm env --use-on-cd)"
 fi
 
+# Load Matt Pocock skills for normal Pi sessions. Pi package subcommands must
+# bypass this function so their arguments retain Pi's command syntax.
+pi() {
+    case "${1:-}" in
+        install|remove|uninstall|update|list|config|auth)
+            command pi "$@"
+            ;;
+        *)
+            command pi --skill "$HOME/agent-skillsets/mattpocock-skills/skills" "$@"
+            ;;
+    esac
+}
+
 if command -v podman >/dev/null 2>&1 && ! command -v docker >/dev/null 2>&1; then
     alias docker='podman'
 fi

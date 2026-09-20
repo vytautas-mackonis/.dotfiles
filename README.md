@@ -17,6 +17,15 @@ The installer currently:
 9. Installs tmux using Homebrew, apt, or pacman, links the preserved tmux configuration, and installs its terminal definitions.
 10. Installs the latest Vim version available from the platform package manager.
 11. Configures Vim with the plugin set from the previous dotfiles repository using vim-plug.
+12. Installs and configures Pi Coding Agent with the tracked package and default model settings.
+
+## Pi Coding Agent
+
+Pi is installed by `./install.sh` through the existing Node.js/fnm environment. The tracked `pi/settings.json` is symlinked to `~/.pi/agent/settings.json`; it contains the shared default provider, model, thinking level, and package list.
+
+Environment-specific Pi state remains local: provider credentials (`auth.json`), model catalogs (`models-store.json`), sessions, and installed package caches are not tracked or symlinked.
+
+In Fish, `pi` loads the common discovered skills plus Matt Pocock's skills. `pi-superpowers` loads the common discovered skills plus the Superpowers skills and extension. Pi package subcommands such as `pi install`, `pi update`, and `pi list` bypass skill injection so Pi parses them normally. Run `pi-update` to update Pi, installed packages, and both external skill repositories. The skill checkout paths in `pi/skills.conf` are the paths used by the launchers and should be changed together with their shell references.
 
 Run from this directory:
 

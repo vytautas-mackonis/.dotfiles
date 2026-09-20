@@ -17,6 +17,10 @@ export PATH="$DOTFILES_DIR/bin:$PATH"
 "$DOTFILES_DIR/scripts/homebrew/install.sh"
 "$DOTFILES_DIR/scripts/python/install.sh"
 "$DOTFILES_DIR/scripts/node/install.sh"
+if [[ -x "$HOME/.local/share/fnm/fnm" ]]; then
+  eval "$("$HOME/.local/share/fnm/fnm" env --shell bash)"
+fi
+"$DOTFILES_DIR/scripts/pi/install.sh"
 "$DOTFILES_DIR/scripts/bun/install.sh"
 "$DOTFILES_DIR/scripts/deno/install.sh"
 if [[ -f "$HOME/.deno/env" ]]; then
@@ -29,3 +33,20 @@ fi
 "$DOTFILES_DIR/scripts/plasma/install.sh"
 "$DOTFILES_DIR/scripts/tmux/install.sh"
 "$DOTFILES_DIR/scripts/vim/install.sh"
+
+parent_shell=$(ps -p "$PPID" -o comm= 2>/dev/null | sed 's/^-//' | sed 's!.*/!!')
+printf '\nReload the current shell with:\n'
+case "$parent_shell" in
+  fish)
+    printf '  source "%s/fish/config.fish"\n' "${XDG_CONFIG_HOME:-$HOME/.config}"
+    ;;
+  bash)
+    printf '  source "%s/.bashrc"\n' "$HOME"
+    ;;
+  zsh)
+    printf '  source "%s/.zshrc"\n' "$HOME"
+    ;;
+  *)
+    printf '  restart your shell, or source its startup file manually\n'
+    ;;
+esac
