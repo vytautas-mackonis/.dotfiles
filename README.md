@@ -34,6 +34,7 @@ Prerequisites on the host:
 
 - Vagrant
 - A Vagrant provider supported by the selected box, such as VirtualBox, VMware, Parallels, or libvirt
+- `vagrant-reload` for the Windows WSL target (`vagrant plugin install vagrant-reload`)
 
 Start a test VM:
 
@@ -58,4 +59,14 @@ vagrant destroy -f ubuntu
 vagrant up ubuntu
 ```
 
-Ubuntu and Arch native Linux are covered by these Vagrant targets. WSL and macOS testing are not covered by Vagrant here.
+Ubuntu and Arch native Linux are covered by these Vagrant targets.
+
+## Windows WSL test
+
+On a host/provider supported by `gusztavvargadr/windows-11`:
+
+```bash
+vagrant up windows-wsl
+```
+
+This boots a prebuilt Windows VM, enables WSL2, installs Ubuntu, and runs the dotfiles installer inside Ubuntu WSL. Nested virtualization is required. The Windows 11 box is amd64-only for this target and supports libvirt, VirtualBox, VMware Desktop/Fusion, and Hyper-V; it does not support Parallels or Apple Silicon macOS.

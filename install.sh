@@ -19,6 +19,10 @@ export PATH="$DOTFILES_DIR/bin:$PATH"
 "$DOTFILES_DIR/scripts/node/install.sh"
 "$DOTFILES_DIR/scripts/bun/install.sh"
 "$DOTFILES_DIR/scripts/deno/install.sh"
+if [[ -f "$HOME/.deno/env" ]]; then
+  # shellcheck disable=SC1091
+  source "$HOME/.deno/env"
+fi
 "$DOTFILES_DIR/scripts/fzf/install.sh"
 "$DOTFILES_DIR/scripts/podman/install.sh"
 "$DOTFILES_DIR/scripts/fonts/install.sh"

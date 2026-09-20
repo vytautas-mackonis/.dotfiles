@@ -40,6 +40,23 @@ Vagrant.configure("2") do |config|
         sudo pacman -S --needed --noconfirm \
           ca-certificates curl git sudo ncurses
       SHELL
+    },
+    "windows-wsl" => {
+      box: "gusztavvargadr/windows-11",
+      windows: true,
+      bootstrap: <<~POWERSHELL
+        $ErrorActionPreference = "Stop"
+        $features = @(
+          "Microsoft-Windows-Subsystem-Linux",
+          "VirtualMachinePlatform"
+        )
+        foreach ($feature in $features) {
+          $state = (Get-WindowsOptionalFeature -Online -FeatureName $feature).State
+          if ($state -ne "Enabled") {
+            Enable-WindowsOptionalFeature -Online -FeatureName $feature -All -NoRestart
+          }
+        }
+      POWERSHELL
     }
   }
 
@@ -48,18 +65,111 @@ Vagrant.configure("2") do |config|
       vm.vm.box = machine[:box]
       vm.vm.hostname = "dotfiles-#{name}"
 
-      vm.vm.provision "file", source: DOTFILES_TEST_ARCHIVE, destination: "/tmp/dotfiles.tar.gz"
-
-      vm.vm.provision "shell", privileged: false, inline: <<~SHELL
-        set -eux
-        sudo rm -rf /dotfiles
-        sudo mkdir -p /dotfiles
-        sudo chown "$USER:$USER" /dotfiles
-        tar -xzf /tmp/dotfiles.tar.gz -C /dotfiles
-        #{machine[:bootstrap]}
-        cd /dotfiles
-        ./install.sh
-      SHELL
+      if machine[:windows]
+        vm.vm.provider "libvirt" do |lv|
+          lv.memory = 8192
+          lv.cpus = 4
+          lv.machine_type = "q35"
+          lv.cpu_mode = "custom"
+          lv.cpu_model = "EPYC"
+          lv.cpu_feature name: "svm", policy: "require"
+          lv.nested = true
+          %w[relaxed vapic vpindex runtime synic stimer tlbflush frequencies ipi].each do |feature|
+            lv.hyperv_feature name: feature, state: "on"
+          end
+          lv.hyperv_feature name: "spinlocks", state: "on", retries: 8191
+          lv.clock_timer name: "hypervclock", present: "yes"
+          lv.disk_bus = "sata"
+          lv.nic_model_type = "e1000e"
+        end
+        vm.vm.provider "virtualbox" do |vb|
+          vb.memory = 8192
+          vb.cpus = 4
+        end
+        vm.vm.provider "hyperv" do |hv|
+          hv.memory = 8192
+          hv.cpus = 4
+        end
+        vm.vm.guest = :windows
+        vm.vm.communicator = "winrm"
+        vm.vm.provision "file", source: DOTFILES_TEST_ARCHIVE, destination: "C:/dotfiles-vagrant.tar.gz"
+        vm.vm.provision "shell", privileged: true, powershell_elevated_interactive: false, inline: machine[:bootstrap]
+        vm.vm.provision "reload", reboot: true, delay: 10
+        vm.vm.provision "shell", privileged: true, powershell_elevated_interactive: false, inline: <<~POWERSHELL
+          $ErrorActionPreference = "Stop"
+          $wslReadyMarker = "C:\\.dotfiles-wsl-ready"
+          if (Test-Path -LiteralPath $wslReadyMarker) {
+            Write-Output "WSL setup already completed; skipping installation."
+            exit 0
+          }
+          $features = @(
+            "Microsoft-Windows-Subsystem-Linux",
+            "VirtualMachinePlatform"
+          )
+          foreach ($feature in $features) {
+            $state = (Get-WindowsOptionalFeature -Online -FeatureName $feature).State
+            if ($state -ne "Enabled") {
+              throw "Required Windows feature '$feature' is not enabled after reboot."
+            }
+          }
+          wsl.exe --update --web-download
+          if ($LASTEXITCODE -ne 0) {
+            throw "Unable to update WSL."
+          }
+          wsl.exe --set-default-version 2
+          $ubuntu = wsl.exe --list --quiet | ForEach-Object { ($_ -replace "`0", "").Trim() } | Where-Object { $_ -eq "Ubuntu" }
+          if (-not $ubuntu) {
+            wsl.exe --install --distribution Ubuntu --no-launch
+            if ($LASTEXITCODE -ne 0) {
+              throw "Unable to install Ubuntu WSL2. Check available memory, nested virtualization, and network access."
+            }
+          }
+          New-Item -ItemType File -Path $wslReadyMarker -Force | Out-Null
+          Write-Output "WSL setup completed."
+        POWERSHELL
+        vm.vm.provision "reload", reboot: true, delay: 10
+        vm.vm.provision "shell", privileged: false, powershell_elevated_interactive: false, inline: <<~POWERSHELL
+          $ErrorActionPreference = "Stop"
+          cmd.exe /c "wsl.exe -l -v > C:\\wsl-list.txt 2>&1"
+          $wslList = (Get-Content -LiteralPath C:\\wsl-list.txt | Out-String) -replace "`0", "" -replace "`r", ""
+          if ($wslList -match "(?m)^\\s*\\*?\\s*Ubuntu\\s+Running\\s+1\\s*$" -or $wslList -match "(?m)^\\s*\\*?\\s*Ubuntu\\s+Stopped\\s+1\\s*$") {
+            throw "Ubuntu WSL distribution is WSL1; enable WSL2 and retry. Output: $wslList"
+          }
+          if ($wslList -notmatch "(?m)^\\s*\\*?\\s*Ubuntu\\s+(Running|Stopped)\\s+2\\s*$") {
+            throw "Ubuntu WSL distribution is missing or is not version 2. Output: $wslList"
+          }
+          Write-Output "WSL Ubuntu is available"
+          $wslArchive = "/mnt/c/dotfiles-vagrant.tar.gz"
+          cmd.exe /c 'wsl.exe -d Ubuntu -- bash -c "rm -rf /dotfiles && mkdir -p /dotfiles" > C:\\wsl-prepare.txt 2>&1'
+          if ($LASTEXITCODE -ne 0) {
+            throw "Unable to prepare /dotfiles in WSL Ubuntu."
+          }
+          $wslBatch = @'
+@echo off
+wsl.exe -d Ubuntu -- bash -c "set -e; tar -xzf /mnt/c/dotfiles-vagrant.tar.gz -C /dotfiles; cd /dotfiles; ./install.sh; source /root/.bash_profile" > C:\\wsl-output.txt 2>&1
+exit /b %ERRORLEVEL%
+'@
+          Set-Content -LiteralPath C:\\dotfiles-wsl.cmd -Value $wslBatch -Encoding ASCII
+          cmd.exe /c C:\\dotfiles-wsl.cmd
+          $wslExitCode = $LASTEXITCODE
+          Get-Content -LiteralPath C:\\wsl-output.txt
+          if ($wslExitCode -ne 0) {
+            throw "Dotfiles installation failed inside WSL Ubuntu."
+          }
+        POWERSHELL
+      else
+        vm.vm.provision "file", source: DOTFILES_TEST_ARCHIVE, destination: "/tmp/dotfiles.tar.gz"
+        vm.vm.provision "shell", privileged: false, inline: <<~SHELL
+          set -eux
+          sudo rm -rf /dotfiles
+          sudo mkdir -p /dotfiles
+          sudo chown "$USER:$USER" /dotfiles
+          tar -xzf /tmp/dotfiles.tar.gz -C /dotfiles
+          #{machine[:bootstrap]}
+          cd /dotfiles
+          ./install.sh
+        SHELL
+      end
     end
   end
 end

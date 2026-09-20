@@ -43,9 +43,14 @@ if [[ -e "$VIMRC" || -L "$VIMRC" ]]; then
 fi
 ln -sfn "$VIMRC_SOURCE" "$VIMRC"
 
+# The first pass may return non-zero because vimrc references plugins before they are installed.
+# Run it anyway so PlugInstall can bootstrap the plugin tree; the second pass is strict.
+vim -Nu "$VIMRC" -n -es \
+  +'PlugInstall --sync' \
+  +qall || true
+
 vim -Nu "$VIMRC" -n \
   +'PlugInstall --sync' \
-  +'PlugUpdate --sync' \
   +'PlugClean!' \
-  +qall
+  +qall </dev/null
 printf 'Vim, its configuration, and its plugins are synced.\n'

@@ -24,7 +24,7 @@ install_prerequisites() {
 }
 
 install_prerequisites
-curl -fsSL https://deno.land/install.sh | sh
+curl -fsSL https://deno.land/install.sh | sh -s -- --yes
 export DENO_INSTALL="$HOME/.deno"
 export PATH="$DENO_INSTALL/bin:$PATH"
 
