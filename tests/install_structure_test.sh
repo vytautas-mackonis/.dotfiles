@@ -86,7 +86,10 @@ assert_contains scripts/fzf/install.sh 'command -v fzf'
 assert_contains scripts/podman/install.sh 'command -v podman'
 assert_contains scripts/podman/install.sh 'Delegate=yes'
 assert_contains scripts/podman/install.sh 'user@.service.d'
-assert_contains scripts/podman/install.sh 'systemctl --user set-property --runtime user.slice Delegate=yes'
+assert_contains scripts/podman/install.sh 'sudo -n systemctl set-property --runtime "user@${uid}.service" Delegate=yes'
+if grep -Fq 'systemctl --user set-property --runtime user.slice Delegate=yes' "$ROOT/scripts/podman/install.sh"; then
+  fail 'Podman installer must not set Delegate on user.slice'
+fi
 assert_contains scripts/github-cli/install.sh 'brew install --yes gh'
 assert_contains scripts/github-cli/install.sh 'sudo -n apt-get install -y gh'
 assert_contains scripts/github-cli/install.sh 'sudo -n pacman -S --needed --noconfirm github-cli'
