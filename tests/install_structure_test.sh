@@ -42,7 +42,7 @@ assert_contains pi/settings.json 'npm:pi-subagents'
 assert_contains pi/settings.json 'npm:@gotgenes/pi-anthropic-auth'
 assert_contains tests/pi_install_test.sh 'cmp "$HOME/.pi/agent/auth.json"'
 assert_contains tests/pi_install_test.sh 'cmp "$HOME/.pi/agent/models-store.json"'
-assert_contains tests/pi_install_test.sh 'settings.json.bak'
+assert_contains tests/pi_install_test.sh 'lastChangelogVersion'
 if grep -Eqi 'mattpocock|superpowers' "$ROOT/pi/settings.json"; then
   fail 'pi/settings.json should not select a skillset'
 fi

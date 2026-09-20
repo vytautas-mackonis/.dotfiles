@@ -22,9 +22,9 @@ The installer currently:
 
 ## Pi Coding Agent
 
-Pi is installed by `./install.sh` through the existing Node.js/fnm environment. The tracked `pi/settings.json` is symlinked to `~/.pi/agent/settings.json`; it contains the shared default provider, model, thinking level, and package list.
+Pi is installed by `./install.sh` through the existing Node.js/fnm environment. The tracked `pi/settings.json` is the shared Pi settings template. The installer copies it to `~/.pi/agent/settings.json` rather than symlinking it, because Pi writes runtime state such as `lastChangelogVersion` to the global settings file. The private copy is preserved on subsequent installs, while the template contains the shared default provider, model, thinking level, theme, and package list.
 
-Environment-specific Pi state remains local: provider credentials (`auth.json`), model catalogs (`models-store.json`), sessions, and installed package caches are not tracked or symlinked.
+Environment-specific Pi state remains local: global settings (including Pi's runtime metadata), provider credentials (`auth.json`), model catalogs (`models-store.json`), sessions, and installed package caches are not tracked or symlinked.
 
 In Fish, `pi` loads the common discovered skills plus Matt Pocock's skills. `pi-superpowers` loads the common discovered skills plus the Superpowers skills and extension. Pi package subcommands such as `pi install`, `pi update`, and `pi list` bypass skill injection so Pi parses them normally. Run `pi-update` to update Pi, installed packages, and both external skill repositories. The skill checkout paths in `pi/skills.conf` are the paths used by the launchers and should be changed together with their shell references.
 

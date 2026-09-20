@@ -27,16 +27,26 @@ PI_AGENT_DIR="$HOME/.pi/agent"
 SETTINGS_PATH="$PI_AGENT_DIR/settings.json"
 mkdir -p "$PI_AGENT_DIR"
 
-if [[ -L "$SETTINGS_PATH" && "$(readlink "$SETTINGS_PATH")" == "$DOTFILES_DIR/pi/settings.json" ]]; then
-  :
-elif [[ -e "$SETTINGS_PATH" || -L "$SETTINGS_PATH" ]]; then
-  backup="$SETTINGS_PATH.bak.$(date +%Y%m%d%H%M%S)"
-  while [[ -e "$backup" || -L "$backup" ]]; do
-    backup+=".1"
-  done
-  mv -- "$SETTINGS_PATH" "$backup"
+if [[ -e "$SETTINGS_PATH" || -L "$SETTINGS_PATH" ]]; then
+  settings_tmp=$(mktemp "$PI_AGENT_DIR/settings.json.XXXXXX")
+  if ! node - "$SETTINGS_PATH" "$DOTFILES_DIR/pi/settings.json" >"$settings_tmp" <<'NODE'
+const fs = require("fs");
+
+const [currentPath, templatePath] = process.argv.slice(2);
+const current = JSON.parse(fs.readFileSync(currentPath, "utf8"));
+const template = JSON.parse(fs.readFileSync(templatePath, "utf8"));
+
+process.stdout.write(`${JSON.stringify({ ...current, ...template }, null, 2)}\n`);
+NODE
+  then
+    rm -f -- "$settings_tmp"
+    printf 'Pi settings must contain valid JSON.\n' >&2
+    exit 1
+  fi
+  mv -- "$settings_tmp" "$SETTINGS_PATH"
+else
+  cp "$DOTFILES_DIR/pi/settings.json" "$SETTINGS_PATH"
 fi
-ln -sfn -- "$DOTFILES_DIR/pi/settings.json" "$SETTINGS_PATH"
 
 package_list=$(mktemp)
 cleanup() {
