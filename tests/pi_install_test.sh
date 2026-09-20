@@ -39,23 +39,26 @@ export COMMAND_LOG="$LOG"
 export OS_FAMILY=linux OS_DISTRO=test OS_ENV=test OS_NAME=test
 
 mkdir -p "$HOME/.pi/agent"
-printf 'old settings\n' >"$HOME/.pi/agent/settings.json"
+printf '{"lastChangelogVersion":"0.86.1","theme":"light"}\n' >"$HOME/.pi/agent/settings.json"
 printf 'credential\n' >"$HOME/.pi/agent/auth.json"
 printf 'catalog\n' >"$HOME/.pi/agent/models-store.json"
-cp "$HOME/.pi/agent/settings.json" "$HOME/settings.expected"
 cp "$HOME/.pi/agent/auth.json" "$HOME/auth.expected"
 cp "$HOME/.pi/agent/models-store.json" "$HOME/models.expected"
 
 bash "$ROOT/scripts/pi/install.sh"
 
 settings="$HOME/.pi/agent/settings.json"
-[[ -L "$settings" ]]
-[[ "$(readlink "$settings")" == "$ROOT/pi/settings.json" ]]
-compgen -G "$HOME/.pi/agent/settings.json.bak.*" >/dev/null
+[[ ! -L "$settings" ]]
+node - "$settings" "$ROOT/pi/settings.json" <<'NODE'
+const fs = require("fs");
+const settings = JSON.parse(fs.readFileSync(process.argv[2], "utf8"));
+const template = JSON.parse(fs.readFileSync(process.argv[3], "utf8"));
+if (settings.lastChangelogVersion !== "0.86.1") process.exit(1);
+if (settings.theme !== template.theme) process.exit(1);
+if (settings.defaultModel !== template.defaultModel) process.exit(1);
+NODE
 cmp "$HOME/.pi/agent/auth.json" "$HOME/auth.expected"
 cmp "$HOME/.pi/agent/models-store.json" "$HOME/models.expected"
-backup=$(compgen -G "$HOME/.pi/agent/settings.json.bak.*")
-cmp "$backup" "$HOME/settings.expected"
 grep -Fq 'pi install npm:pi-subagents' "$LOG"
 grep -Fq 'pi install npm:@gotgenes/pi-anthropic-auth' "$LOG"
 grep -Fq "git clone https://github.com/mattpocock/skills $HOME/agent-skillsets/mattpocock-skills" "$LOG"
