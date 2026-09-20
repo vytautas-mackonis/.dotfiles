@@ -14,10 +14,10 @@ case "$OS_FAMILY:$OS_DISTRO" in
     brew install --yes tmux
     ;;
   linux:ubuntu)
-    DEBIAN_FRONTEND=noninteractive sudo -n apt-get install -y tmux
+    DEBIAN_FRONTEND=noninteractive sudo -n apt-get install -y tmux wl-clipboard xclip
     ;;
   linux:arch)
-    sudo -n pacman -S --needed --noconfirm tmux
+    sudo -n pacman -S --needed --noconfirm tmux wl-clipboard xclip
     ;;
   *)
     printf 'Unsupported operating system/distribution: %s (%s)\n' "$OS_NAME" "$OS_DISTRO" >&2
