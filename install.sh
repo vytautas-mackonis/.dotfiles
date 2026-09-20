@@ -33,3 +33,20 @@ fi
 "$DOTFILES_DIR/scripts/plasma/install.sh"
 "$DOTFILES_DIR/scripts/tmux/install.sh"
 "$DOTFILES_DIR/scripts/vim/install.sh"
+
+parent_shell=$(ps -p "$PPID" -o comm= 2>/dev/null | sed 's/^-//' | sed 's!.*/!!')
+printf '\nReload the current shell with:\n'
+case "$parent_shell" in
+  fish)
+    printf '  source "%s/fish/config.fish"\n' "${XDG_CONFIG_HOME:-$HOME/.config}"
+    ;;
+  bash)
+    printf '  source "%s/.bashrc"\n' "$HOME"
+    ;;
+  zsh)
+    printf '  source "%s/.zshrc"\n' "$HOME"
+    ;;
+  *)
+    printf '  restart your shell, or source its startup file manually\n'
+    ;;
+esac

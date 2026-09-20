@@ -29,6 +29,8 @@ for path in scripts/pi/install.sh bin/pi-superpowers bin/pi-update; do
   assert_executable "$path"
 done
 assert_contains install.sh '"$DOTFILES_DIR/scripts/pi/install.sh"'
+assert_contains install.sh 'ps -p "$PPID" -o comm='
+assert_contains install.sh 'Reload the current shell'
 assert_contains install.sh 'env --shell bash'
 if grep -Fq 'readlink -f' "$ROOT/scripts/pi/install.sh"; then
   fail 'Pi installer must use portable symlink comparison'
