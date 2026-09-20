@@ -25,6 +25,41 @@ case "$OS_FAMILY:$OS_DISTRO" in
     ;;
 esac
 
+configure_rootless_delegation() {
+  if [[ "$OS_FAMILY" != linux ]]; then
+    return
+  fi
+
+  if ! command -v systemctl >/dev/null 2>&1; then
+    printf 'systemd is unavailable; skipping Podman rootless delegation.\n' >&2
+    return
+  fi
+
+  local systemd_state
+  systemd_state=$(sudo -n systemctl is-system-running 2>/dev/null || true)
+  case "$systemd_state" in
+    running|degraded)
+      ;;
+    *)
+      printf 'systemd is not running; enable systemd to use rootless kind with Podman.\n' >&2
+      return
+      ;;
+  esac
+
+  local dropin_dir=/etc/systemd/system/user@.service.d
+  local dropin_path="$dropin_dir/delegate.conf"
+  sudo -n install -d -m 0755 "$dropin_dir"
+  printf '[Service]\nDelegate=yes\n' | sudo -n tee "$dropin_path" >/dev/null
+  sudo -n systemctl daemon-reload
+
+  if systemctl --user show-environment >/dev/null 2>&1; then
+    systemctl --user set-property --runtime user.slice Delegate=yes
+  else
+    printf 'User systemd manager is unavailable; log in again to activate Podman delegation.\n' >&2
+  fi
+}
+
+configure_rootless_delegation
 command -v podman >/dev/null
 podman --version
 printf 'Podman is installed.\n'
