@@ -48,6 +48,13 @@ if grep -Eqi 'mattpocock|superpowers' "$ROOT/pi/settings.json"; then
 fi
 assert_contains README.md '## Pi Coding Agent'
 
+assert_file scripts/rust/install.sh
+assert_executable scripts/rust/install.sh
+assert_contains scripts/rust/install.sh 'source "$SCRIPT_DIR/../common.sh"'
+assert_contains scripts/rust/install.sh 'toolchain install stable --profile default'
+assert_contains scripts/rust/install.sh 'default stable'
+assert_contains install.sh '"$DOTFILES_DIR/scripts/rust/install.sh"'
+
 for tool in homebrew python node bun deno fzf podman; do
   script="scripts/$tool/install.sh"
   assert_file "$script"
