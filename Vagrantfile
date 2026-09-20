@@ -80,6 +80,7 @@ Vagrant.configure("2") do |config|
       if machine[:macos]
         vm.ssh.username = "admin"
         vm.ssh.password = "admin"
+        vm.ssh.shell = "/bin/sh"
         vm.ssh.insert_key = false
         vm.ssh.private_key_path = []
         vm.vm.provider "tart" do |tart|
@@ -198,7 +199,7 @@ exit /b %ERRORLEVEL%
               sudo mount_virtiofs dotfiles #{dotfiles_dir}
             fi
             cd #{dotfiles_dir}
-            ./install.sh
+            /bin/zsh -lic './install.sh'
           SHELL
         else
           vm.vm.provision "file", source: DOTFILES_TEST_ARCHIVE, destination: "/tmp/dotfiles.tar.gz"
