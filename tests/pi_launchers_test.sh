@@ -28,6 +28,14 @@ fish -c "source '$ROOT/shell/include.fish'; set -gx PATH '$STUB_BIN' \$PATH; pi 
 grep -Fq -- "pi --skill $HOME/agent-skillsets/mattpocock-skills/skills prompt" "$LOG"
 
 : >"$LOG"
+bash -c 'source "$1/shell/include.sh"; PATH="$2:$PATH"; pi prompt' _ "$ROOT" "$STUB_BIN"
+grep -Fq -- "pi --skill $HOME/agent-skillsets/mattpocock-skills/skills prompt" "$LOG"
+
+: >"$LOG"
+zsh -c 'source "$1/shell/include.sh"; PATH="$2:$PATH"; pi prompt' _ "$ROOT" "$STUB_BIN"
+grep -Fq -- "pi --skill $HOME/agent-skillsets/mattpocock-skills/skills prompt" "$LOG"
+
+: >"$LOG"
 fish -c "source '$ROOT/shell/include.fish'; set -gx PATH '$STUB_BIN' \$PATH; pi install npm:example"
 grep -Fq -- "pi install npm:example" "$LOG"
 ! grep -Fq -- '--skill' "$LOG"

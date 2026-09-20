@@ -55,6 +55,8 @@ for tool in homebrew python node bun deno fzf podman; do
 done
 
 assert_contains shell/include.sh 'eval "$(fnm env --use-on-cd)"'
+assert_contains shell/include.sh 'pi() {'
+assert_contains shell/include.sh 'command pi --skill "$HOME/agent-skillsets/mattpocock-skills/skills" "$@"'
 assert_contains shell/include.sh 'BUN_INSTALL="$HOME/.bun"'
 assert_contains shell/include.sh 'DENO_INSTALL="$HOME/.deno"'
 assert_contains shell/include.sh "if command -v podman >/dev/null 2>&1 && ! command -v docker >/dev/null 2>&1; then"
