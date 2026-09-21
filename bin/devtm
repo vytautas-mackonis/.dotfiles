@@ -2,6 +2,11 @@
 # tmux -f ~/.dev.tmux.conf attach
 # tmux source-file ~/.tmux.conf
 set -e
+
+if [[ "${DEVT_DELEGATED:-}" != 1 ]] && command -v systemd-run >/dev/null 2>&1; then
+  exec systemd-run --user --scope -p Delegate=yes env DEVT_DELEGATED=1 "$0" "$@"
+fi
+
 tmux new-session -A -s dev -n ide -x "$(tput cols)" -y "$(tput lines)" -d
 tmux split-window -v -t dev
 tmux select-pane -t 1
