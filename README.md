@@ -13,12 +13,13 @@ The installer currently:
 5. Installs the latest Node.js through fnm and initializes fnm from the shell includes.
 6. Installs the Rust stable toolchain through rustup.
 7. Installs Bun, Deno, fzf, Podman, GitHub CLI, and GitLab CLI. On Linux with systemd, configures rootless Podman delegation for kind; macOS skips this because Podman runs in its VM, and WSL without systemd reports a warning.
-8. Installs the bundled fonts for the current OS.
-9. Configures KDE Plasma to enable NumLock at session startup when running on Linux with Plasma tools available.
-10. Installs tmux using Homebrew, apt, or pacman, links the preserved tmux configuration, and installs its terminal definitions.
-11. Installs the latest Vim version available from the platform package manager.
-12. Configures Vim with the plugin set from the previous dotfiles repository using vim-plug.
-13. Installs and configures Pi Coding Agent with the tracked package and default model settings.
+8. Installs VS Code on macOS, Ubuntu, and Arch-based Linux; skips it in WSL because WSL has no graphical interface.
+9. Installs the bundled fonts for the current OS.
+10. Configures KDE Plasma to enable NumLock at session startup when running on Linux with Plasma tools available.
+11. Installs tmux using Homebrew, apt, or pacman, links the preserved tmux configuration, and installs its terminal definitions.
+12. Installs the latest Vim version available from the platform package manager.
+13. Configures Vim with the plugin set from the previous dotfiles repository using vim-plug.
+14. Installs and configures Pi Coding Agent with the tracked package and default model settings.
 
 ## Pi Coding Agent
 

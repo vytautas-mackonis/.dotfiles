@@ -55,7 +55,7 @@ assert_contains scripts/rust/install.sh 'toolchain install stable --profile defa
 assert_contains scripts/rust/install.sh 'default stable'
 assert_contains install.sh '"$DOTFILES_DIR/scripts/rust/install.sh"'
 
-for tool in homebrew python node bun deno fzf podman github-cli gitlab-cli; do
+for tool in homebrew python node bun deno fzf podman github-cli gitlab-cli vscode; do
   script="scripts/$tool/install.sh"
   assert_file "$script"
   assert_executable "$script"
@@ -98,6 +98,11 @@ assert_contains scripts/gitlab-cli/install.sh 'brew install --yes glab'
 assert_contains scripts/gitlab-cli/install.sh 'sudo -n apt-get install -y glab'
 assert_contains scripts/gitlab-cli/install.sh 'sudo -n pacman -S --needed --noconfirm glab'
 assert_contains scripts/gitlab-cli/install.sh 'command -v glab'
+assert_contains scripts/vscode/install.sh '[[ "$OS_ENV" == wsl ]]'
+assert_contains scripts/vscode/install.sh 'brew install --cask visual-studio-code'
+assert_contains scripts/vscode/install.sh 'apt-get install -y code'
+assert_contains scripts/vscode/install.sh 'pacman -S --needed --noconfirm code'
+assert_contains scripts/vscode/install.sh 'command -v code'
 assert_contains scripts/homebrew/install.sh 'command -v brew'
 assert_contains scripts/homebrew/install.sh 'brew --version'
 assert_contains scripts/shell/install.sh "sed -i.bak '/^set bell-style /d'"
