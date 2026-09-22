@@ -36,7 +36,7 @@ if grep -Fq 'readlink -f' "$ROOT/scripts/pi/install.sh"; then
   fail 'Pi installer must use portable symlink comparison'
 fi
 assert_contains pi/settings.json '"defaultProvider": "openai-codex"'
-assert_contains pi/settings.json '"defaultModel": "gpt-5.6-luna"'
+assert_contains pi/settings.json '"defaultModel": "gpt-6-luna"'
 assert_contains pi/settings.json '"defaultThinkingLevel": "medium"'
 assert_contains pi/settings.json 'npm:pi-subagents'
 assert_contains pi/settings.json 'npm:@gotgenes/pi-anthropic-auth'
