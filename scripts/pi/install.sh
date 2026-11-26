@@ -48,6 +48,17 @@ else
   cp "$DOTFILES_DIR/pi/settings.json" "$SETTINGS_PATH"
 fi
 
+# The reviewer agent's read-only git/gh tools; settings.json loads them only in reviewer child sessions.
+TOOLS_LINK="$PI_AGENT_DIR/subagent-tools"
+TOOLS_SOURCE="$DOTFILES_DIR/pi/subagent-tools"
+if [[ -e "$TOOLS_LINK" || -L "$TOOLS_LINK" ]]; then
+  if [[ ! -L "$TOOLS_LINK" || "$(readlink "$TOOLS_LINK")" != "$TOOLS_SOURCE" ]]; then
+    rm -rf -- "$TOOLS_LINK.backup"
+    mv -- "$TOOLS_LINK" "$TOOLS_LINK.backup"
+  fi
+fi
+ln -sfn "$TOOLS_SOURCE" "$TOOLS_LINK"
+
 package_list=$(mktemp)
 cleanup() {
   rm -f -- "$package_list"

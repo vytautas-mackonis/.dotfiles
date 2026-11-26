@@ -6,5 +6,22 @@
     "npm:pi-subagents",
     "npm:@gotgenes/pi-anthropic-auth"
   ],
-  "theme": "dark"
+  "theme": "dark",
+  "subagents": {
+    "agentOverrides": {
+      "reviewer": {
+        "tools": [
+          "read",
+          "grep",
+          "find",
+          "ls",
+          "watchdog_diff",
+          "contact_supervisor",
+          "git_read",
+          "gh_read",
+          "~/.pi/agent/subagent-tools/review-readonly.ts"
+        ]
+      }
+    }
+  }
 }

@@ -22,7 +22,7 @@ assert_contains() {
   grep -Fq -- "$expected" "$ROOT/$file" || fail "$file does not contain: $expected"
 }
 
-for path in scripts/pi/install.sh bin/pi-superpowers bin/pi-update pi/settings.json pi/skills.conf; do
+for path in scripts/pi/install.sh bin/pi-superpowers bin/pi-update pi/settings.json pi/skills.conf pi/subagent-tools/review-readonly.ts pi/subagent-tools/review-readonly-policy.ts pi/subagent-tools/review-readonly-policy.test.ts; do
   assert_file "$path"
 done
 for path in scripts/pi/install.sh bin/pi-superpowers bin/pi-update; do

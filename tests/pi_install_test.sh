@@ -42,6 +42,8 @@ mkdir -p "$HOME/.pi/agent"
 printf '{"lastChangelogVersion":"0.86.1","theme":"light"}\n' >"$HOME/.pi/agent/settings.json"
 printf 'credential\n' >"$HOME/.pi/agent/auth.json"
 printf 'catalog\n' >"$HOME/.pi/agent/models-store.json"
+mkdir -p "$HOME/.pi/agent/subagent-tools"
+printf 'hand-made\n' >"$HOME/.pi/agent/subagent-tools/review-readonly.ts"
 cp "$HOME/.pi/agent/auth.json" "$HOME/auth.expected"
 cp "$HOME/.pi/agent/models-store.json" "$HOME/models.expected"
 
@@ -57,6 +59,16 @@ if (settings.lastChangelogVersion !== "0.86.1") process.exit(1);
 if (settings.theme !== template.theme) process.exit(1);
 if (settings.defaultModel !== template.defaultModel) process.exit(1);
 NODE
+tools_link="$HOME/.pi/agent/subagent-tools"
+[[ -L "$tools_link" && "$(readlink "$tools_link")" == "$ROOT/pi/subagent-tools" ]]
+[[ "$(<"$tools_link.backup/review-readonly.ts")" == hand-made ]]
+node - "$settings" <<'NODE'
+const fs = require("fs");
+const tools = JSON.parse(fs.readFileSync(process.argv[2], "utf8")).subagents?.agentOverrides?.reviewer?.tools ?? [];
+for (const tool of ["git_read", "gh_read", "~/.pi/agent/subagent-tools/review-readonly.ts"]) {
+  if (!tools.includes(tool)) process.exit(1);
+}
+NODE
 cmp "$HOME/.pi/agent/auth.json" "$HOME/auth.expected"
 cmp "$HOME/.pi/agent/models-store.json" "$HOME/models.expected"
 grep -Fq 'pi install npm:pi-subagents' "$LOG"
@@ -68,6 +80,8 @@ grep -Fq "git clone https://github.com/obra/superpowers $HOME/agent-skillsets/su
 bash "$ROOT/scripts/pi/install.sh"
 grep -Fq "git -C $HOME/agent-skillsets/mattpocock-skills pull --ff-only" "$LOG"
 grep -Fq "git -C $HOME/agent-skillsets/superpowers pull --ff-only" "$LOG"
+[[ -L "$tools_link" && "$(readlink "$tools_link")" == "$ROOT/pi/subagent-tools" ]]
+[[ ! -e "$tools_link.backup.backup" && ! -e "$ROOT/pi/subagent-tools/subagent-tools" ]]
 
 printf 'unchanged\n' >"$HOME/agent-skillsets/mattpocock-skills/marker"
 export PI_TEST_NON_FF=1
